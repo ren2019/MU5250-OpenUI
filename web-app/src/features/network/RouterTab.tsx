@@ -39,33 +39,33 @@ function DnsSection() {
         ...(dns.ipv6_primary ? { ipv6_wan_prefer_dns_manual: dns.ipv6_primary } : {}),
         ...(dns.ipv6_secondary ? { ipv6_wan_standby_dns_manual: dns.ipv6_secondary } : {}),
       })
-      toast('DNS settings saved')
+      toast('DNS 设置已保存')
     } catch (e) {
-      toastError(e, 'Failed to save DNS')
+      toastError(e, '保存 DNS 设置失败')
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <Card title="DNS servers">
+    <Card title="DNS 服务器">
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-        <Field label="Primary DNS (IPv4)">
+        <Field label="首选 DNS（IPv4）">
           <Input value={dns.primary} onChange={(e) => setDns((d) => ({ ...d, primary: e.target.value }))} placeholder="1.1.1.1" inputMode="numeric" />
         </Field>
-        <Field label="Secondary DNS (IPv4)">
+        <Field label="备用 DNS（IPv4）">
           <Input value={dns.secondary} onChange={(e) => setDns((d) => ({ ...d, secondary: e.target.value }))} placeholder="1.0.0.1" inputMode="numeric" />
         </Field>
-        <Field label="Primary DNS (IPv6)">
+        <Field label="首选 DNS（IPv6）">
           <Input value={dns.ipv6_primary ?? ''} onChange={(e) => setDns((d) => ({ ...d, ipv6_primary: e.target.value }))} placeholder="2606:4700:4700::1111" />
         </Field>
-        <Field label="Secondary DNS (IPv6)">
+        <Field label="备用 DNS（IPv6）">
           <Input value={dns.ipv6_secondary ?? ''} onChange={(e) => setDns((d) => ({ ...d, ipv6_secondary: e.target.value }))} placeholder="2001:4860:4860::8888" />
         </Field>
       </div>
       <div className="mt-3.5 flex flex-wrap items-center gap-2">
         <Button variant="primary" onClick={save} loading={busy}>
-          Apply
+          应用
         </Button>
         <div className="flex gap-1.5">
           {DNS_PRESETS.map((p) => (
@@ -108,9 +108,9 @@ function LanSection() {
       })
       if (result.changed) {
         if (result.reconnect_ip !== lan.ipaddr || typeof result.confirmation_token !== 'string') {
-          throw new Error('Invalid LAN transition response; previous settings will be restored automatically')
+          throw new Error('局域网切换响应无效，将自动恢复原设置')
         }
-        setTransition(`Reconnecting to ${lan.ipaddr}. Rejoin Wi-Fi if needed. Previous settings return automatically if confirmation fails.`)
+        setTransition(`正在重新连接 ${lan.ipaddr}。如有需要，请重新加入 Wi-Fi。确认失败时将自动恢复原设置。`)
         const deadline = Date.now() + 90_000
         let confirmed = false
         while (Date.now() < deadline) {
@@ -122,9 +122,9 @@ function LanSection() {
           } catch { /* The address may still be changing; retry within the recovery window. */ }
         }
         if (!confirmed) {
-          throw new Error('Could not confirm the new address. Wait up to two minutes from Apply for the previous LAN settings to return, then reconnect.')
+          throw new Error('无法确认新地址。请在点击“应用”后等待最多两分钟，待原局域网设置恢复后重新连接。')
         }
-        setTransition('LAN settings confirmed. Opening the dashboard at its new address…')
+        setTransition('局域网设置已确认，正在打开新地址的管理面板…')
         if (window.location.hostname !== lan.ipaddr) {
           const next = new URL(window.location.href)
           next.hostname = lan.ipaddr
@@ -132,32 +132,32 @@ function LanSection() {
           window.location.assign(next.toString())
         }
       }
-      toast('LAN settings saved and confirmed')
+      toast('局域网设置已保存并确认')
     } catch (e) {
-      setTransition(e instanceof Error ? e.message : 'LAN change failed')
-      toastError(e, 'Failed to save LAN settings')
+      setTransition(e instanceof Error ? e.message : '局域网设置修改失败')
+      toastError(e, '保存局域网设置失败')
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <Card title="LAN / DHCP">
-      <p className="mb-3 text-xs text-ink3" role="status">{transition || 'Changes must reconnect and confirm within two minutes; otherwise the previous settings are restored.'}</p>
+    <Card title="局域网 / DHCP">
+      <p className="mb-3 text-xs text-ink3" role="status">{transition || '修改后须在两分钟内重新连接并确认，否则将恢复原设置。'}</p>
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-        <Field label="LAN IP">
+        <Field label="局域网 IP 地址">
           <Input value={lan.ipaddr} onChange={(e) => setLan((l) => ({ ...l, ipaddr: e.target.value }))} inputMode="numeric" />
         </Field>
-        <Field label="Netmask">
+        <Field label="子网掩码">
           <Input value={lan.netmask} onChange={(e) => setLan((l) => ({ ...l, netmask: e.target.value }))} inputMode="numeric" />
         </Field>
-        <Field label="DHCP start">
+        <Field label="DHCP 起始地址">
           <Input disabled={!lan.dhcp_enabled} value={lan.dhcp_start} onChange={(e) => setLan((l) => ({ ...l, dhcp_start: e.target.value }))} inputMode="numeric" />
         </Field>
-        <Field label="DHCP end">
+        <Field label="DHCP 结束地址">
           <Input disabled={!lan.dhcp_enabled} value={lan.dhcp_end} onChange={(e) => setLan((l) => ({ ...l, dhcp_end: e.target.value }))} inputMode="numeric" />
         </Field>
-        <Field label="Lease time (hours)" hint="The firmware stores this value in seconds.">
+        <Field label="租约时长（小时）" hint="固件以秒为单位存储此值。">
           <Input
             type="number"
             min={1}
@@ -171,14 +171,14 @@ function LanSection() {
       </div>
       <div className="mt-3 flex items-center justify-between rounded-lg bg-surface2/60 px-3 py-2.5">
         <div>
-          <p className="text-[13px] font-semibold text-ink">DHCP server</p>
-          <p className="text-[11px] text-ink3">Assign addresses to LAN and Wi-Fi clients</p>
+          <p className="text-[13px] font-semibold text-ink">DHCP 地址分配服务</p>
+          <p className="text-[11px] text-ink3">为局域网和 Wi-Fi 设备分配地址</p>
         </div>
-        <Toggle checked={lan.dhcp_enabled} onChange={(dhcp_enabled) => setLan((l) => ({ ...l, dhcp_enabled }))} label="DHCP server" />
+        <Toggle checked={lan.dhcp_enabled} onChange={(dhcp_enabled) => setLan((l) => ({ ...l, dhcp_enabled }))} label="DHCP 地址分配服务" />
       </div>
       <div className="mt-3.5">
         <Button variant="primary" onClick={save} loading={busy}>
-          Apply
+          应用
         </Button>
       </div>
     </Card>

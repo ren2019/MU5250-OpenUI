@@ -35,17 +35,17 @@ export function formatUptime(secs?: number): string {
   const d = Math.floor(secs / 86400)
   const h = Math.floor((secs % 86400) / 3600)
   const m = Math.floor((secs % 3600) / 60)
-  return [d && `${d}d`, (d || h) && `${h}h`, `${m}m`].filter(Boolean).join(' ')
+  return [d && `${d} 天`, (d || h) && `${h} 小时`, `${m} 分钟`].filter(Boolean).join(' ')
 }
 
 export function formatDuration(secs: number): string {
-  if (!Number.isFinite(secs) || secs <= 0) return '0s'
+  if (!Number.isFinite(secs) || secs <= 0) return '0 秒'
   const h = Math.floor(secs / 3600)
   const m = Math.floor((secs % 3600) / 60)
   const s = Math.floor(secs % 60)
-  if (h > 0) return `${h}h ${m}m`
-  if (m > 0) return `${m}m ${s}s`
-  return `${s}s`
+  if (h > 0) return `${h} 小时 ${m} 分钟`
+  if (m > 0) return `${m} 分钟 ${s} 秒`
+  return `${s} 秒`
 }
 
 // ── Signal quality ────────────────────────────────────────────────────────────
@@ -63,13 +63,13 @@ export function rsrpQuality(rsrp?: number): Quality {
 export function qualityLabel(q: Quality): string {
   switch (q) {
     case 'excellent':
-      return 'Excellent'
+      return '极好'
     case 'good':
-      return 'Good'
+      return '良好'
     case 'fair':
-      return 'Fair'
+      return '一般'
     case 'poor':
-      return 'Weak'
+      return '较弱'
     default:
       return '\u2014'
   }

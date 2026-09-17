@@ -1,3 +1,5 @@
+import { errorLabel } from '../../data/client'
+import { statusLabel } from '../../display'
 import { useEffect, useState } from 'react'
 import { api } from '../../data/api'
 import { usePoll } from '../../data/poll'
@@ -21,7 +23,7 @@ function ThermalBar({ label, value }: { label: string; value?: number | null }) 
     return (
       <div className="flex justify-between text-[12px]">
         <span className="text-ink2">{label}</span>
-        <span className="font-medium text-ink3">Unavailable</span>
+        <span className="font-medium text-ink3">不可用</span>
       </div>
     )
   }
@@ -57,7 +59,7 @@ function ChargeControlCard() {
       // spending a second request re-reading what we were just handed.
       mutate(await api.chargeControlSet(body))
     } catch (e) {
-      toastError(e, 'Charge control failed')
+      toastError(e, '充电控制失败')
     } finally {
       setBusy(false)
     }
@@ -66,14 +68,14 @@ function ChargeControlCard() {
   if (!cc) return null
 
   return (
-    <Card title="Charge control">
+    <Card title="充电控制">
       <div className="space-y-3">
-        {cc.last_error && <p role="alert" className="text-[12px] text-danger">{cc.last_error}</p>}
+        {cc.last_error && <p role="alert" className="text-[12px] text-danger">{errorLabel(cc.last_error)}</p>}
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-[13px] font-medium text-ink">Charging</p>
+            <p className="text-[13px] font-medium text-ink">充电状态</p>
             <p className="truncate text-[12px] text-ink2">
-              {cc.battery_status ?? 'Battery data unavailable'}{cc.capacity != null ? ` at ${cc.capacity}%` : ''}{cc.manual_override ? ' · manual override' : ''}
+              {statusLabel(cc.battery_status)}{cc.capacity != null ? `，当前 ${cc.capacity}%` : ''}{cc.manual_override ? ' · 手动覆盖' : ''}
             </p>
           </div>
           <Button
@@ -83,23 +85,23 @@ function ChargeControlCard() {
             disabled={!cc.charger_available}
             onClick={() => apply({ charging_stopped: !cc.charging_stopped })}
           >
-            {cc.charging_stopped ? 'Resume charging' : 'Stop charging'}
+            {cc.charging_stopped ? '恢复充电' : '停止充电'}
           </Button>
         </div>
 
         <div className="border-t border-line/8 pt-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[13px] font-medium text-ink">Charge limit</p>
+              <p className="text-[13px] font-medium text-ink">充电上限</p>
               <p className="text-[12px] text-ink2">
-                Stop at limit, resume {cc.hysteresis}% below
+                达到上限停止，降低 {cc.hysteresis}% 后恢复
               </p>
             </div>
             <Toggle
               checked={cc.charge_limit_enabled}
               disabled={busy || !cc.battery_available}
               onChange={(v) => apply({ charge_limit_enabled: v })}
-              label="Charge limit enforcer"
+              label="充电上限控制"
             />
           </div>
           <div className="mt-2 flex items-center gap-3">
@@ -126,10 +128,9 @@ function ChargeControlCard() {
         </div>
 
         <p className="text-[11px] leading-snug text-ink3">
-          Firmware note: the charger switch is inverted (enable = stop). Charging auto-resumes when the
-          charger is unplugged or the limit is disabled.
+          固件说明：充电开关语义相反（enable 表示停止充电）。拔出充电器或禁用充电上限后，将自动恢复允许充电状态。
         </p>
-        {!cc.available && <p className="text-[12px] font-medium text-warn">Battery and charger hardware data are unavailable; controls are disabled.</p>}
+        {!cc.available && <p className="text-[12px] font-medium text-warn">无法获取电池和充电器硬件数据，已禁用控制功能。</p>}
       </div>
     </Card>
   )
@@ -187,35 +188,35 @@ export default function MetricsTab() {
 
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-      <Card title="Temperatures">
+      <Card title="温度">
         {thermal?.available ? (
           <div className="space-y-2.5">
-            <ThermalBar label="CPU (avg)" value={cpuAvg} />
-            <ThermalBar label="Modem (Q6 DSP)" value={thermal.modem} />
-            <ThermalBar label="Modem SS" value={thermal.modem_ss0} />
-            <ThermalBar label="PA (power amplifier)" value={thermal.pa} />
-            <ThermalBar label="SDR (radio)" value={thermal.sdr} />
-            <ThermalBar label="Battery" value={thermal.battery} />
+            <ThermalBar label="CPU（平均）" value={cpuAvg} />
+            <ThermalBar label="基带（Q6 DSP）" value={thermal.modem} />
+            <ThermalBar label="基带子系统" value={thermal.modem_ss0} />
+            <ThermalBar label="PA（功率放大器）" value={thermal.pa} />
+            <ThermalBar label="SDR（无线电）" value={thermal.sdr} />
+            <ThermalBar label="电池" value={thermal.battery} />
             <ThermalBar label="USB" value={thermal.usb} />
-            <ThermalBar label="Ethernet PHY" value={thermal.eth_phy} />
+            <ThermalBar label="以太网物理层" value={thermal.eth_phy} />
             <ThermalBar label="PMIC" value={thermal.pmic} />
-            <ThermalBar label="Board (XO)" value={thermal.xo_therm} />
+            <ThermalBar label="主板（晶振）" value={thermal.xo_therm} />
           </div>
         ) : (
           <div className="space-y-2.5">
-            <p className="text-[12px] font-medium text-warn">Thermal sensors are unavailable.</p>
-            {['CPU (avg)', 'Modem (Q6 DSP)', 'Modem SS', 'PA (power amplifier)', 'SDR (radio)', 'Battery', 'USB', 'Ethernet PHY', 'PMIC', 'Board (XO)'].map((label) => <ThermalBar key={label} label={label} />)}
+            <p className="text-[12px] font-medium text-warn">温度传感器数据不可用。</p>
+            {['CPU（平均）', '基带（Q6 DSP）', '基带子系统', 'PA（功率放大器）', 'SDR（无线电）', '电池', 'USB', '以太网物理层', 'PMIC', '主板（晶振）'].map((label) => <ThermalBar key={label} label={label} />)}
           </div>
         )}
       </Card>
 
       <div className="space-y-3">
-        <Card title="CPU usage">
+        <Card title="CPU 使用率">
           {cpu ? (
             <div className="space-y-3">
               <div>
                 <div className="mb-1 flex justify-between text-[13px]">
-                  <span className="font-medium text-ink">Overall</span>
+                  <span className="font-medium text-ink">总体</span>
                   <span className="tnum text-ink2">{cpu.overall.toFixed(1)}%</span>
                 </div>
                 <Meter pct={cpu.overall} />
@@ -225,7 +226,7 @@ export default function MetricsTab() {
                   {cpu.cores.map((pct, i) => (
                     <div key={i}>
                       <div className="mb-0.5 flex justify-between text-[11px]">
-                        <span className="text-ink3">Core {i}</span>
+                        <span className="text-ink3">核心 {i}</span>
                         <span className="tnum text-ink2">{pct.toFixed(1)}%</span>
                       </div>
                       <Meter pct={pct} />
@@ -235,15 +236,15 @@ export default function MetricsTab() {
               )}
             </div>
           ) : (
-            <p className="text-[13px] text-ink3">No CPU data</p>
+            <p className="text-[13px] text-ink3">暂无 CPU 数据</p>
           )}
         </Card>
 
-        <Card title="Memory">
+        <Card title="内存">
           {mem ? (
             <div>
               <div className="mb-1 flex justify-between text-[13px]">
-                <span className="text-ink2">Usage</span>
+                <span className="text-ink2">使用量</span>
                 <span className="tnum text-ink">
                   {formatBytes(mem.used_kb * 1024)} / {formatBytes(mem.total_kb * 1024)} ({mem.usage_pct.toFixed(0)}%)
                 </span>
@@ -251,58 +252,58 @@ export default function MetricsTab() {
               <Meter pct={mem.usage_pct} tone="bg-warn" />
             </div>
           ) : (
-            <p className="text-[13px] text-ink3">No memory data</p>
+            <p className="text-[13px] text-ink3">暂无内存数据</p>
           )}
         </Card>
       </div>
 
-      <Card title="Battery">
+      <Card title="电池">
         {battery?.available ? (
           <div className="space-y-3">
             <div>
               <div className="mb-1 flex justify-between text-[13px]">
-                <span className="tnum font-semibold text-ink">{battery.capacity != null ? `${battery.capacity}%` : 'Unavailable'}</span>
-                <span className="text-ink2">{battery.status ?? 'Unavailable'}</span>
+                <span className="tnum font-semibold text-ink">{battery.capacity != null ? `${battery.capacity}%` : '不可用'}</span>
+                <span className="text-ink2">{statusLabel(battery.status)}</span>
               </div>
               {battery.capacity != null && <Meter pct={battery.capacity} tone={battery.capacity > 20 ? 'bg-ok' : 'bg-danger'} />}
             </div>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
-              <Info label="Power" value={formatMeasure(battery.power_mw, (value) => `${(value / 1000).toFixed(2)} W`)} />
-              <Info label="Voltage" value={formatMeasure(battery.voltage_mv, (value) => `${(value / 1000).toFixed(3)} V`)} />
-              <Info label="Current" value={formatMeasure(battery.current_ma, (value) => `${value} mA`)} />
-              <Info label="Charge type" value={battery.charge_type ?? 'Unavailable'} />
-              <Info label="Temperature" value={formatMeasure(battery.temperature_c, (value) => `${value.toFixed(1)}°C`)} cls={battery.temperature_c != null ? tempColorClass(battery.temperature_c) : 'text-ink3'} />
+              <Info label="功率" value={formatMeasure(battery.power_mw, (value) => `${(value / 1000).toFixed(2)} W`)} />
+              <Info label="电压" value={formatMeasure(battery.voltage_mv, (value) => `${(value / 1000).toFixed(3)} V`)} />
+              <Info label="电流" value={formatMeasure(battery.current_ma, (value) => `${value} mA`)} />
+              <Info label="充电类型" value={statusLabel(battery.charge_type)} />
+              <Info label="温度" value={formatMeasure(battery.temperature_c, (value) => `${value.toFixed(1)}°C`)} cls={battery.temperature_c != null ? tempColorClass(battery.temperature_c) : 'text-ink3'} />
               <Info
-                label={battery.status === 'Charging' ? 'Time to full' : 'Time to empty'}
+                label={battery.status === 'Charging' ? '预计充满时间' : '预计剩余续航'}
                 value={formatClock(battery.status === 'Charging' ? battery.time_to_full_secs : battery.time_to_empty_secs)}
               />
-              <Info label="Charge counter" value={formatMeasure(battery.charge_counter_mah, (value) => `${value.toLocaleString()} mAh`)} />
-              <Info label="Cycles" value={formatMeasure(battery.cycle_count, String)} />
-              <Info label="Fuel gauge" value={batteryInfo?.available && batteryInfo.using_hw_fg_chip != null ? (batteryInfo.using_hw_fg_chip ? 'Hardware' : 'Software') : 'Unavailable'} />
-              <Info label="Battery online" value={batteryInfo?.available && batteryInfo.online != null ? (batteryInfo.online ? 'Yes' : 'No') : 'Unavailable'} />
+              <Info label="电荷计数" value={formatMeasure(battery.charge_counter_mah, (value) => `${value.toLocaleString()} mAh`)} />
+              <Info label="循环次数" value={formatMeasure(battery.cycle_count, String)} />
+              <Info label="电量计" value={batteryInfo?.available && batteryInfo.using_hw_fg_chip != null ? (batteryInfo.using_hw_fg_chip ? '硬件' : '软件') : '不可用'} />
+              <Info label="电池已连接" value={batteryInfo?.available && batteryInfo.online != null ? (batteryInfo.online ? '是' : '否') : '不可用'} />
             </div>
           </div>
         ) : (
-          <p className="text-[13px] font-medium text-warn">Battery hardware data are unavailable.</p>
+          <p className="text-[13px] font-medium text-warn">电池硬件数据不可用。</p>
         )}
       </Card>
 
       <div className="space-y-3">
-        <Card title="Battery health">
+        <Card title="电池健康">
           {battery?.available ? (
             <div className="space-y-1.5 text-[13px]">
-              <KV k="Health" v={battery.health ?? 'Unavailable'} />
-              <KV k="Capacity" v={battery.charge_full_mah != null && battery.charge_full_design_mah != null ? `${battery.charge_full_mah.toLocaleString()} / ${battery.charge_full_design_mah.toLocaleString()} mAh` : 'Unavailable'} />
+              <KV k="健康状态" v={statusLabel(battery.health)} />
+              <KV k="电池容量" v={battery.charge_full_mah != null && battery.charge_full_design_mah != null ? `${battery.charge_full_mah.toLocaleString()} / ${battery.charge_full_design_mah.toLocaleString()} mAh` : '不可用'} />
               {batteryHealth != null && (
                 <div className="flex justify-between">
-                  <span className="text-ink2">Capacity retention</span>
+                  <span className="text-ink2">容量保持率</span>
                   <span className={`tnum font-semibold ${batteryHealth > 80 ? 'text-ok' : 'text-warn'}`}>{batteryHealth}%</span>
                 </div>
               )}
-              <KV k="OCV" v={formatMeasure(battery.voltage_ocv_mv, (value) => `${(value / 1000).toFixed(3)} V`)} />
+              <KV k="OCV（开路电压）" v={formatMeasure(battery.voltage_ocv_mv, (value) => `${(value / 1000).toFixed(3)} V`)} />
             </div>
           ) : (
-          <p className="text-[13px] font-medium text-warn">Battery health measures are unavailable.</p>
+          <p className="text-[13px] font-medium text-warn">电池健康指标不可用。</p>
           )}
         </Card>
 
@@ -331,12 +332,12 @@ function KV({ k, v }: { k: string; v: string }) {
 }
 
 function formatMeasure(value: number | null, format: (value: number) => string) {
-  return value == null ? 'Unavailable' : format(value)
+  return value == null ? '不可用' : format(value)
 }
 
 function formatClock(secs: number | null) {
-  if (secs == null || secs <= 0) return 'Unavailable'
+  if (secs == null || secs <= 0) return '不可用'
   const h = Math.floor(secs / 3600)
   const m = Math.floor((secs % 3600) / 60)
-  return h > 0 ? `${h}h ${m}m` : `${m}m`
+  return h > 0 ? `${h} 小时 ${m} 分钟` : `${m} 分钟`
 }

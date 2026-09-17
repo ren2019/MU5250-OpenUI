@@ -51,13 +51,13 @@ function Tip({ text, children }: { text: string; children: React.ReactNode }) {
 }
 
 const RSRP_TIP =
-  'Reference Signal Received Power — power of a single LTE/NR reference signal. Primary indicator of signal strength.'
+  'RSRP（参考信号接收功率）：单个 LTE/NR 参考信号的功率，是衡量信号强度的主要指标。'
 const RSRQ_TIP =
-  'Reference Signal Received Quality — signal quality accounting for noise and interference from neighbouring cells.'
+  'RSRQ（参考信号接收质量）：综合噪声和邻近小区干扰后衡量的信号质量。'
 const SINR_TIP =
-  'Signal to Interference plus Noise Ratio — how far the signal is above the noise floor. Key metric for achievable throughput.'
+  'SINR（信号与干扰加噪声比）：信号相对于干扰和噪声的强度，是影响可达速率的关键指标。'
 const RSSI_TIP =
-  'Received Signal Strength Indicator — total wideband received power including signal, noise, and interference.'
+  'RSSI（接收信号强度指示）：包括信号、噪声和干扰在内的宽带总接收功率。'
 
 // ── Carrier table (desktop) / cards (mobile) ──────────────────────────────────
 
@@ -67,10 +67,10 @@ function CarrierStatus({ carrier, empty = null }: { carrier: CarrierComponent; e
   return (
     <span className="flex flex-wrap gap-1">
       {carrier.ul_configured !== undefined && (
-        <Chip tone={carrier.ul_configured ? 'ok' : 'default'}>UL {carrier.ul_configured ? '\u2713' : '\u2717'}</Chip>
+        <Chip tone={carrier.ul_configured ? 'ok' : 'default'}>UL 上行 {carrier.ul_configured ? '\u2713' : '\u2717'}</Chip>
       )}
       {carrier.active !== undefined && (
-        <Chip tone={carrier.active ? 'ok' : 'default'}>{carrier.active ? 'Active' : 'Idle'}</Chip>
+        <Chip tone={carrier.active ? 'ok' : 'default'}>{carrier.active ? '活动' : '空闲'}</Chip>
       )}
     </span>
   )
@@ -85,7 +85,7 @@ function CarrierTable({ carriers, tech }: { carriers: CarrierComponent[]; tech: 
   return (
     <div className={isNR ? 'mb-4' : ''}>
       <p className={`mb-2 text-[11px] font-bold uppercase tracking-wider ${bandText}`}>
-        {isNR ? 'NR 5G' : 'LTE'} carriers
+        {isNR ? 'NR 5G' : 'LTE'} 载波
       </p>
 
       {/* Desktop table */}
@@ -93,13 +93,13 @@ function CarrierTable({ carriers, tech }: { carriers: CarrierComponent[]; tech: 
         <table className="w-full text-left text-[13px]">
           <thead>
             <tr className="border-b border-line/8 text-[11px] uppercase tracking-wider text-ink3">
-              <th className="pb-1.5 pr-3 font-semibold">Type</th>
-              <th className="pb-1.5 pr-3 font-semibold">Band</th>
-              <th className="pb-1.5 pr-3 font-semibold">Status</th>
+              <th className="pb-1.5 pr-3 font-semibold">类型</th>
+              <th className="pb-1.5 pr-3 font-semibold">频段</th>
+              <th className="pb-1.5 pr-3 font-semibold">状态</th>
               <th className="pb-1.5 pr-3 font-semibold">PCI</th>
               <th className="pb-1.5 pr-3 font-semibold">{isNR ? 'ARFCN' : 'EARFCN'}</th>
-              <th className="pb-1.5 pr-3 font-semibold">BW</th>
-              <th className="pb-1.5 pr-3 font-semibold">Freq</th>
+              <th className="pb-1.5 pr-3 font-semibold">带宽</th>
+              <th className="pb-1.5 pr-3 font-semibold">频率</th>
               <th className="pb-1.5 pr-3 font-semibold">
                 <Tip text={RSRP_TIP}>
                   <span className="underline decoration-dotted underline-offset-2">RSRP</span>
@@ -195,7 +195,7 @@ function CarrierTable({ carriers, tech }: { carriers: CarrierComponent[]; tech: 
                 <span>
                   {isNR ? 'ARFCN' : 'EARFCN'} {c.earfcn}
                 </span>
-                <span>BW {c.bandwidth}</span>
+                <span>带宽 {c.bandwidth}</span>
                 {c.freq != null && <span>{c.freq.toFixed(1)} MHz</span>}
               </div>
             </div>
@@ -226,7 +226,7 @@ export default function Overview() {
   if (!data) {
     return (
       <Card>
-        <p className="text-[13px] text-ink3">No radio data reported by the modem.</p>
+        <p className="text-[13px] text-ink3">设备尚未上报无线信号数据。</p>
       </Card>
     )
   }
@@ -242,19 +242,19 @@ export default function Overview() {
       <Card>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">Connection</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">连接信息</p>
             <p className="mt-0.5 text-sm font-bold text-ink">{data.type ?? '\u2014'}</p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">Provider</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">运营商</p>
             <p className="mt-0.5 text-sm font-medium text-ink">{data.carrier ?? '\u2014'}</p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">Cell ID</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">小区 ID</p>
             <p className="tnum mt-0.5 font-mono text-[13px] text-ink2">{data.cell_id ?? '\u2014'}</p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">Carriers</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">载波</p>
             <p className="mt-0.5 text-sm text-ink2">
               {hasNR ? `${data.nr_carriers.length} NR` : ''}
               {hasNR && hasLTE ? ' + ' : ''}
@@ -263,7 +263,7 @@ export default function Overview() {
             </p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">Bandwidth</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">带宽</p>
             <p className="tnum mt-0.5 text-sm font-bold text-ink">{formatBandwidthMHz(totalBw)}</p>
             {hasNR && hasLTE && (
               <p className="tnum text-[10px] text-ink3">
@@ -278,38 +278,38 @@ export default function Overview() {
       </Card>
 
       {(hasNR || hasLTE) && (
-        <Card title="Current cell info">
+        <Card title="当前小区信息">
           <CarrierTable carriers={data.nr_carriers} tech="NR" />
           <CarrierTable carriers={data.lte_carriers} tech="LTE" />
         </Card>
       )}
 
-      <Card title="Signal quality reference">
+      <Card title="信号质量参考">
         <div className="grid grid-cols-1 gap-4 text-[13px] md:grid-cols-3">
           <div>
-            <p className="mb-1.5 font-semibold text-ink">RSRP (dBm)</p>
+            <p className="mb-1.5 font-semibold text-ink">RSRP 参考信号接收功率（dBm）</p>
             <div className="space-y-0.5 text-ink2">
-              <div className="flex justify-between"><span className="text-ok">Excellent</span><span className="tnum text-ink3">&gt; -80</span></div>
-              <div className="flex justify-between"><span className="text-ok">Good</span><span className="tnum text-ink3">-80 to -90</span></div>
-              <div className="flex justify-between"><span className="text-warn">Fair</span><span className="tnum text-ink3">-90 to -100</span></div>
-              <div className="flex justify-between"><span className="text-danger">Poor</span><span className="tnum text-ink3">&lt; -100</span></div>
+              <div className="flex justify-between"><span className="text-ok">极好</span><span className="tnum text-ink3">&gt; -80</span></div>
+              <div className="flex justify-between"><span className="text-ok">良好</span><span className="tnum text-ink3">-80 至 -90</span></div>
+              <div className="flex justify-between"><span className="text-warn">一般</span><span className="tnum text-ink3">-90 至 -100</span></div>
+              <div className="flex justify-between"><span className="text-danger">较差</span><span className="tnum text-ink3">&lt; -100</span></div>
             </div>
           </div>
           <div>
-            <p className="mb-1.5 font-semibold text-ink">RSRQ (dB)</p>
+            <p className="mb-1.5 font-semibold text-ink">RSRQ 参考信号接收质量（dB）</p>
             <div className="space-y-0.5 text-ink2">
-              <div className="flex justify-between"><span className="text-ok">Good</span><span className="tnum text-ink3">&gt; -10</span></div>
-              <div className="flex justify-between"><span className="text-warn">Fair</span><span className="tnum text-ink3">-10 to -15</span></div>
-              <div className="flex justify-between"><span className="text-danger">Poor</span><span className="tnum text-ink3">&lt; -15</span></div>
+              <div className="flex justify-between"><span className="text-ok">良好</span><span className="tnum text-ink3">&gt; -10</span></div>
+              <div className="flex justify-between"><span className="text-warn">一般</span><span className="tnum text-ink3">-10 至 -15</span></div>
+              <div className="flex justify-between"><span className="text-danger">较差</span><span className="tnum text-ink3">&lt; -15</span></div>
             </div>
           </div>
           <div>
-            <p className="mb-1.5 font-semibold text-ink">SINR (dB)</p>
+            <p className="mb-1.5 font-semibold text-ink">SINR 信干噪比（dB）</p>
             <div className="space-y-0.5 text-ink2">
-              <div className="flex justify-between"><span className="text-ok">Excellent</span><span className="tnum text-ink3">&gt; 20</span></div>
-              <div className="flex justify-between"><span className="text-ok">Good</span><span className="tnum text-ink3">10 to 20</span></div>
-              <div className="flex justify-between"><span className="text-warn">Fair</span><span className="tnum text-ink3">0 to 10</span></div>
-              <div className="flex justify-between"><span className="text-danger">Poor</span><span className="tnum text-ink3">&lt; 0</span></div>
+              <div className="flex justify-between"><span className="text-ok">极好</span><span className="tnum text-ink3">&gt; 20</span></div>
+              <div className="flex justify-between"><span className="text-ok">良好</span><span className="tnum text-ink3">10 至 20</span></div>
+              <div className="flex justify-between"><span className="text-warn">一般</span><span className="tnum text-ink3">0 至 10</span></div>
+              <div className="flex justify-between"><span className="text-danger">较差</span><span className="tnum text-ink3">&lt; 0</span></div>
             </div>
           </div>
         </div>

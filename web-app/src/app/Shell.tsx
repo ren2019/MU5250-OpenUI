@@ -1,3 +1,4 @@
+import { DemoNotice } from '../ui/DemoNotice'
 /* eslint-disable react-refresh/only-export-components */
 import { Suspense, useEffect, useState, type ReactNode } from 'react'
 import { useAlerts } from './HomeContext'
@@ -7,19 +8,19 @@ import { Spinner } from '../ui/primitives'
 export type Group = 'home' | 'signal' | 'network' | 'modem' | 'system'
 
 export const NAV: { id: Group; label: string; icon: (p: { size?: number; className?: string }) => ReactNode }[] = [
-  { id: 'home', label: 'Home', icon: (p) => <IHome {...p} /> },
-  { id: 'signal', label: 'Signal', icon: (p) => <ISignal {...p} /> },
-  { id: 'network', label: 'Network', icon: (p) => <IGlobe {...p} /> },
-  { id: 'modem', label: 'Modem', icon: (p) => <ISim {...p} /> },
-  { id: 'system', label: 'System', icon: (p) => <IGauge {...p} /> },
+  { id: 'home', label: '首页', icon: (p) => <IHome {...p} /> },
+  { id: 'signal', label: '信号', icon: (p) => <ISignal {...p} /> },
+  { id: 'network', label: '网络', icon: (p) => <IGlobe {...p} /> },
+  { id: 'modem', label: '蜂窝网络', icon: (p) => <ISim {...p} /> },
+  { id: 'system', label: '系统', icon: (p) => <IGauge {...p} /> },
 ]
 
 const GROUP_TITLES: Record<Group, string> = {
-  home: 'Home',
-  signal: 'Signal',
-  network: 'Network',
-  modem: 'Modem',
-  system: 'System',
+  home: '首页',
+  signal: '信号',
+  network: '网络',
+  modem: '蜂窝网络',
+  system: '系统',
 }
 
 // ── Alert banner (fed by the home poll — zero extra requests) ─────────────────
@@ -47,7 +48,7 @@ function AlertBanner() {
           <button
             onClick={() => setDismissed((prev) => new Set(prev).add(a.message))}
             className="shrink-0 opacity-60 transition-opacity hover:opacity-100"
-            aria-label="Dismiss"
+            aria-label="关闭提示"
           >
             <IX size={14} />
           </button>
@@ -117,7 +118,7 @@ export default function Shell({
             className="flex items-center gap-2 text-[12px] font-medium text-ink2 transition-colors hover:text-ink"
           >
             {themeIcon}
-            {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            {theme === 'dark' ? '浅色模式' : '深色模式'}
           </button>
         </div>
       </aside>
@@ -133,7 +134,7 @@ export default function Shell({
           <button
             onClick={onToggleTheme}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-ink2 transition-colors hover:bg-surface2 hover:text-ink"
-            aria-label="Toggle theme"
+            aria-label="切换主题"
           >
             {themeIcon}
           </button>
@@ -141,6 +142,7 @@ export default function Shell({
 
         <main className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-shell px-4 pb-24 pt-4 lg:px-6 lg:pb-10 lg:pt-6">
+            <DemoNotice />
             <AlertBanner />
             <Suspense
               fallback={

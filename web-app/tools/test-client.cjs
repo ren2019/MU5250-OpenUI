@@ -4,14 +4,14 @@ const fs = require('node:fs')
 const path = require('node:path')
 const vm = require('node:vm')
 const ts = require('typescript')
-function fixture() {
+function fixture(response) {
   const requests = []
   const context = { exports: {}, AbortController, setTimeout, clearTimeout,
     window: { location: { hostname: '192.168.0.1' }, dispatchEvent: () => {} },
     sessionStorage: { getItem: () => 'general-session-secret', setItem: () => {}, removeItem: () => {} },
     fetch: async (url, options) => {
       requests.push({ url, options })
-      return { ok: true, status: 200, json: async () => ({ ok: true, data: {} }) }
+      return response ?? { ok: true, status: 200, json: async () => ({ ok: true, data: {} }) }
     },
   }
   const source = fs.readFileSync(path.join(__dirname, '../src/data/client.ts'), 'utf8')
@@ -32,7 +32,21 @@ test('LAN confirmation carries only the scoped nonce to the new address', async 
 test('LAN confirmation rejects URLs and addresses outside private IPv4 space', async () => {
   const { client, requests } = fixture()
   for (const ip of ['8.8.8.8', '192.168.1.999', 'http://192.168.1.1', '192.168.1.1@example.org', '172.32.0.1']) {
-    await assert.rejects(client.confirmLan(ip, 'nonce'), /Invalid LAN/)
+    await assert.rejects(client.confirmLan(ip, 'nonce'), /局域网重连地址无效/)
   }
   assert.equal(requests.length, 0)
+})
+
+test('login translates an agent error without changing credentials or status', async () => {
+  const { client, requests } = fixture({
+    ok: false, status: 401, json: async () => ({ ok: false, error: 'invalid credentials' }),
+  })
+  await assert.rejects(client.login({ password: 'demo-only' }), error => {
+    assert.equal(error.message, '密码或 PIN 码不正确')
+    assert.equal(error.status, 401)
+    return true
+  })
+  assert.deepEqual(JSON.parse(requests[0].options.body), { password: 'demo-only' })
+  assert.equal(client.errorLabel('too many attempts, retry in 42s'), '尝试次数过多，请在 42 秒后重试')
+  assert.equal(client.errorLabel('new firmware diagnostic: raw_value=1'), '服务返回：new firmware diagnostic: raw_value=1')
 })

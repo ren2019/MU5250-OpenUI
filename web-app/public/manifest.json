@@ -1,5 +1,6 @@
 {
-  "name": "ZTE U60 Pro Dashboard",
+  "name": "ZTE U60 Pro 管理面板",
+  "lang": "zh-CN",
   "short_name": "U60 Pro",
   "start_url": "./",
   "display": "standalone",

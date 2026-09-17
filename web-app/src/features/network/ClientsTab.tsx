@@ -64,22 +64,22 @@ export default function ClientsTab() {
   return (
     <div className="space-y-3">
       <Card
-        title={`Connected clients (${clients.length})`}
+        title={`已连接设备（${clients.length}）`}
         action={
           <Button size="sm" variant="ghost" onClick={refresh} loading={refreshing}>
-            <IRefresh size={13} /> Refresh
+            <IRefresh size={13} /> 刷新
           </Button>
         }
       >
         {clients.length === 0 ? (
-          <Empty icon={<ILaptop size={28} />} title="No clients connected" />
+          <Empty icon={<ILaptop size={28} />} title="暂无已连接设备" />
         ) : (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {[
               { label: 'Wi-Fi', count: grouped.wifi.length, icon: <IWifi size={15} /> },
               { label: 'USB-C', count: grouped.usb.length, icon: <IUsb size={15} /> },
-              { label: 'Ethernet', count: grouped.ethernet.length, icon: <ICable size={15} /> },
-              { label: 'Other', count: grouped.other.length, icon: <ILaptop size={15} /> },
+              { label: '以太网', count: grouped.ethernet.length, icon: <ICable size={15} /> },
+              { label: '其他', count: grouped.other.length, icon: <ILaptop size={15} /> },
             ].map((g) => (
               <div key={g.label} className="rounded-lg bg-surface2/70 px-3 py-2.5">
                 <div className="flex items-center gap-1.5 text-ink3">
@@ -94,16 +94,16 @@ export default function ClientsTab() {
       </Card>
 
       {grouped.wifi.length > 0 && (
-        <Card title={`Wi-Fi (${grouped.wifi.length})`} pad={false}>
+        <Card title={`Wi-Fi（${grouped.wifi.length}）`} pad={false}>
           <div className="overflow-x-auto px-4 pb-3">
             <table className="w-full text-[13px]">
               <thead>
                 <tr className="border-b border-line/8 text-left text-[11px] uppercase tracking-wider text-ink3">
-                  <th className={TH_CLS}>Hostname</th>
+                  <th className={TH_CLS}>主机名</th>
                   <th className={TH_CLS}>IP</th>
-                  <th className={TH_CLS}>Radio</th>
-                  <th className={TH_CLS}>Signal</th>
-                  <th className={TH_CLS}>Link</th>
+                  <th className={TH_CLS}>无线频段</th>
+                  <th className={TH_CLS}>信号</th>
+                  <th className={TH_CLS}>链路</th>
                   <th className="pb-1.5 font-semibold">MAC</th>
                 </tr>
               </thead>
@@ -129,21 +129,21 @@ export default function ClientsTab() {
       )}
 
       {(grouped.usb.length > 0 || usbLink) && (
-        <Card title={`USB-C (${grouped.usb.length})`} pad={false}>
+        <Card title={`USB-C（${grouped.usb.length}）`} pad={false}>
           <div className="px-4 pb-3">
             {usbLink && (
               <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg bg-surface2/70 px-3 py-2">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink3">Tether link</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink3">共享网络链路</span>
                 <span className="text-[13px] font-bold text-ink">
-                  {usbLink.negotiated_label ?? usbLink.negotiated ?? 'Unknown'}
+                  {usbLink.negotiated_label ?? usbLink.negotiated ?? '未知'}
                   {usbNegotiatedRate && <span className="font-medium text-ink2"> · {usbNegotiatedRate}</span>}
                 </span>
                 {usbLink.at_full_speed === false && usbMaxRate && (
                   <Chip tone="warn">
-                    {usbLink.max_label ?? 'Higher'} capable · {usbMaxRate} — cable/port limiting
+                    {usbLink.max_label ?? '更高'} 可达 · {usbMaxRate} — 受线缆或接口限制
                   </Chip>
                 )}
-                {usbLink.at_full_speed === true && <Chip tone="ok">Full speed</Chip>}
+                {usbLink.at_full_speed === true && <Chip tone="ok">全速</Chip>}
               </div>
             )}
             {grouped.usb.length > 0 ? (
@@ -151,9 +151,9 @@ export default function ClientsTab() {
                 <table className="w-full text-[13px]">
                   <thead>
                     <tr className="border-b border-line/8 text-left text-[11px] uppercase tracking-wider text-ink3">
-                      <th className={TH_CLS}>Hostname</th>
+                      <th className={TH_CLS}>主机名</th>
                       <th className={TH_CLS}>IP</th>
-                      <th className={TH_CLS}>Interface</th>
+                      <th className={TH_CLS}>接口</th>
                       <th className="pb-1.5 font-semibold">MAC</th>
                     </tr>
                   </thead>
@@ -170,21 +170,21 @@ export default function ClientsTab() {
                 </table>
               </div>
             ) : (
-              <p className="text-[13px] text-ink3">No USB-C clients connected</p>
+              <p className="text-[13px] text-ink3">暂无 USB-C 连接设备</p>
             )}
           </div>
         </Card>
       )}
 
       {grouped.ethernet.length > 0 && (
-        <Card title={`Ethernet (${grouped.ethernet.length})`} pad={false}>
+        <Card title={`以太网（${grouped.ethernet.length}）`} pad={false}>
           <div className="overflow-x-auto px-4 pb-3">
             <table className="w-full text-[13px]">
               <thead>
                 <tr className="border-b border-line/8 text-left text-[11px] uppercase tracking-wider text-ink3">
-                  <th className={TH_CLS}>Hostname</th>
+                  <th className={TH_CLS}>主机名</th>
                   <th className={TH_CLS}>IP</th>
-                  <th className={TH_CLS}>Speed</th>
+                  <th className={TH_CLS}>速率</th>
                   <th className="pb-1.5 font-semibold">MAC</th>
                 </tr>
               </thead>
@@ -204,12 +204,12 @@ export default function ClientsTab() {
       )}
 
       {grouped.other.length > 0 && (
-        <Card title={`Other (${grouped.other.length})`} pad={false}>
+        <Card title={`其他（${grouped.other.length}）`} pad={false}>
           <div className="overflow-x-auto px-4 pb-3">
             <table className="w-full text-[13px]">
               <thead>
                 <tr className="border-b border-line/8 text-left text-[11px] uppercase tracking-wider text-ink3">
-                  <th className={TH_CLS}>Hostname</th>
+                  <th className={TH_CLS}>主机名</th>
                   <th className={TH_CLS}>IP</th>
                   <th className="pb-1.5 font-semibold">MAC</th>
                 </tr>

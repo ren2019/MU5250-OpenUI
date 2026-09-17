@@ -49,8 +49,8 @@ export default function HomePage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-bold text-ink">Overview</h1>
-        <p className="mt-0.5 text-[13px] text-ink2">{signal?.carrier ?? 'Mobile broadband status'}</p>
+        <h1 className="text-xl font-bold text-ink">概览</h1>
+        <p className="mt-0.5 text-[13px] text-ink2">{signal?.carrier ?? '移动网络状态'}</p>
       </div>
 
       {error && !data && (
@@ -65,7 +65,7 @@ export default function HomePage() {
           <div className="flex h-full flex-col justify-between gap-3">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">Signal strength</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">信号强度</p>
                 <div className="mt-1.5 flex items-end gap-2">
                   <span className={`tnum text-4xl font-bold leading-none ${qualityText(quality)}`}>
                     {pccRsrp != null ? pccRsrp : '\u2014'}
@@ -78,7 +78,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-wrap items-center gap-1.5 border-t border-line/8 pt-2.5">
               <span className={`h-2 w-2 rounded-full ${qualityBg(quality)}`} />
-              <span className="text-[12px] text-ink2">{signal?.signal_bars ?? 0}/5 bars</span>
+              <span className="text-[12px] text-ink2">{signal?.signal_bars ?? 0}/5 格</span>
               {primary?.band && (
                 <Chip tone={primary.band.startsWith('n') ? 'nr' : 'lte'}>{primary.band}</Chip>
               )}
@@ -94,17 +94,17 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-1.5 text-ink3">
                 <IRadio size={14} />
-                <p className="text-[10px] font-semibold uppercase tracking-wider">Modem mode</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider">网络制式</p>
               </div>
               <p className="tnum mt-2 text-3xl font-bold text-ink">{mode}</p>
               <p className="mt-1 text-[12px] text-ink2">
-                {carrierCount} carrier{carrierCount !== 1 ? 's' : ''} active
+                {carrierCount} 个活动载波
               </p>
             </div>
             <div className="flex flex-wrap gap-1.5 border-t border-line/8 pt-2.5">
               {nrBw > 0 && <Chip tone="nr">NR {formatBandwidthMHz(nrBw)}</Chip>}
               {lteBw > 0 && <Chip tone="lte">LTE {formatBandwidthMHz(lteBw)}</Chip>}
-              {totalBw <= 0 && <span className="text-[11px] text-ink3">No bandwidth reported</span>}
+              {totalBw <= 0 && <span className="text-[11px] text-ink3">暂无带宽数据</span>}
             </div>
           </div>
         </Card>
@@ -114,7 +114,7 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-1.5 text-ink3">
                 <IActivity size={14} />
-                <p className="text-[10px] font-semibold uppercase tracking-wider">Throughput</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider">实时速率</p>
               </div>
               <div className="mt-2 space-y-1.5">
                 <div className="flex items-center gap-1.5">
@@ -132,7 +132,7 @@ export default function HomePage() {
               </div>
             </div>
             <p className="tnum border-t border-line/8 pt-2.5 text-[11px] text-ink3">
-              Peak {speed && speed.max_rx_bps > 0 ? formatSpeed(speed.max_rx_bps) : '\u2014'} down
+              下行峰值 {speed && speed.max_rx_bps > 0 ? formatSpeed(speed.max_rx_bps) : '\u2014'}
             </p>
           </div>
         </Card>
@@ -142,12 +142,12 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-1.5 text-ink3">
                 {battery?.charging ? <IBolt size={14} /> : <IRadio size={14} className="opacity-0" />}
-                <p className="text-[10px] font-semibold uppercase tracking-wider">Battery</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider">电池</p>
               </div>
               <p className="tnum mt-2 text-3xl font-bold text-ink">
                 {battery?.percent != null ? `${battery.percent}%` : '\u2014'}
               </p>
-              <p className="mt-1 text-[12px] text-ink2">{battery?.charging ? 'Charging' : 'On battery'}</p>
+              <p className="mt-1 text-[12px] text-ink2">{battery?.charging ? '充电中' : '电池供电'}</p>
             </div>
             <p className="tnum border-t border-line/8 pt-2.5 text-[11px] text-ink3">
               {battery?.voltage_mv ? `${(battery.voltage_mv / 1000).toFixed(2)} V` : '\u2014'}
@@ -159,7 +159,7 @@ export default function HomePage() {
 
       {/* Radio details */}
       {signal && (signal.lte_carriers.length > 0 || signal.nr_carriers.length > 0) && (
-        <Card title="Carriers">
+        <Card title="载波">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-accent">LTE</p>
@@ -173,7 +173,7 @@ export default function HomePage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-[13px] text-ink3">No active LTE carrier</p>
+                <p className="text-[13px] text-ink3">暂无活动 LTE 载波</p>
               )}
             </div>
             <div>
@@ -190,7 +190,7 @@ export default function HomePage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-[13px] text-ink3">No active NR carrier</p>
+                <p className="text-[13px] text-ink3">暂无活动 NR 载波</p>
               )}
             </div>
           </div>
@@ -199,21 +199,21 @@ export default function HomePage() {
 
       {/* Details row */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <Card title="Connection">
-          <Row label="Operator" value={signal?.carrier ?? '\u2014'} />
+        <Card title="连接信息">
+          <Row label="运营商" value={signal?.carrier ?? '\u2014'} />
           <Row label="IPv4" value={wan?.ipv4 ?? '\u2014'} mono />
-          <Row label="Gateway" value={wan?.gateway ?? '\u2014'} mono />
+          <Row label="网关" value={wan?.gateway ?? '\u2014'} mono />
           <Row label="IPv6" value={wan6?.ipv6 ?? '\u2014'} mono wrap />
-          {wan6?.prefix && <Row label="IPv6 prefix" value={wan6.prefix} mono wrap />}
+          {wan6?.prefix && <Row label="IPv6 前缀" value={wan6.prefix} mono wrap />}
           {wan?.dns && wan.dns.length > 0 && (
             <Row label="DNS" value={wan.dns.filter((d) => !d.includes(':')).join(', ') || '\u2014'} mono wrap />
           )}
         </Card>
 
-        <Card title="Device">
-          <Row label="Model" value={device?.model ?? '\u2014'} />
-          <Row label="Firmware" value={device?.firmware ?? '\u2014'} />
-          <Row label="Uptime" value={formatUptime(device?.uptime_secs)} />
+        <Card title="设备">
+          <Row label="型号" value={device?.model ?? '\u2014'} />
+          <Row label="固件版本" value={device?.firmware ?? '\u2014'} />
+          <Row label="运行时间" value={formatUptime(device?.uptime_secs)} />
           <div className="mt-2 space-y-2 border-t border-line/8 pt-2.5">
             <div>
               <div className="mb-1 flex justify-between text-[11px]">
@@ -224,7 +224,7 @@ export default function HomePage() {
             </div>
             <div>
               <div className="mb-1 flex justify-between text-[11px]">
-                <span className="font-medium text-ink2">Memory</span>
+                <span className="font-medium text-ink2">内存</span>
                 <span className="tnum text-ink2">{mem ? `${mem.usage_pct.toFixed(0)}%` : '\u2014'}</span>
               </div>
               <Meter pct={mem?.usage_pct ?? 0} tone="bg-warn" />
@@ -232,13 +232,13 @@ export default function HomePage() {
           </div>
         </Card>
 
-        <Card title="Data usage">
+        <Card title="流量统计">
           {usage ? (
             <div className="space-y-2.5">
               {[
-                { label: 'Today', period: usage.day },
-                { label: 'This month', period: usage.month },
-                { label: 'Total', period: usage.total },
+                { label: '今日', period: usage.day },
+                { label: '本月', period: usage.month },
+                { label: '累计', period: usage.total },
               ].map(({ label, period }) => (
                 <div key={label}>
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">{label}</p>
@@ -254,7 +254,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <p className="text-[13px] text-ink3">Not available</p>
+            <p className="text-[13px] text-ink3">暂无数据</p>
           )}
         </Card>
       </div>
