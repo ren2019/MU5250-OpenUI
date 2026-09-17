@@ -26,18 +26,54 @@ pub fn device_thermal_all(_state: &AppState) -> (u16, Value) {
     ];
 
     let mut data = serde_json::Map::new();
+    let mut modem_supported = false;
+    let mut modem_error: Option<String> = None;
     for (name, path) in zones {
-        if let Ok(s) = fs::read_to_string(path) {
-            if let Ok(millideg) = s.trim().parse::<i64>() {
-                // Skip invalid readings: -273000 = sensor offline, valid range -40°C to +150°C
-                if millideg > -40_000 && millideg < 150_000 {
-                    let temp_c = millideg as f64 / 1000.0;
-                    data.insert(name.to_string(), json!(temp_c));
+        match fs::read_to_string(path) {
+            Ok(s) => {
+                let temperature = s
+                    .trim()
+                    .parse::<i64>()
+                    .ok()
+                    .filter(|value| *value > -40_000 && *value < 150_000)
+                    .map(|value| value as f64 / 1000.0);
+                if *name == "modem" {
+                    modem_supported = true;
+                    if temperature.is_none() {
+                        modem_error = Some("invalid modem temperature".into());
+                    }
+                }
+                if let Some(value) = temperature {
+                    data.insert(name.to_string(), json!(value));
                 }
             }
+            Err(error) if *name == "modem" && error.kind() != std::io::ErrorKind::NotFound => {
+                modem_supported = true;
+                modem_error = Some("modem temperature read failed".into());
+            }
+            Err(_) => {}
         }
     }
+    // This endpoint reads sysfs on every request. The timestamp describes the
+    // modem observation only; another available sensor must not stand in for it.
+    let sampled_at_ms = data.contains_key("modem").then(|| {
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis()
+    });
     data.insert("available".to_string(), json!(!data.is_empty()));
+    data.insert("modem_supported".to_string(), json!(modem_supported));
+    data.insert(
+        "source".to_string(),
+        json!({
+            "sampled_at_ms": sampled_at_ms,
+            "age_ms": sampled_at_ms.map(|_| 0),
+            "ttl_ms": 10_000,
+            "stale": modem_error.is_some(),
+            "error": modem_error,
+        }),
+    );
     (200, json!({"ok": true, "data": data}))
 }
 
