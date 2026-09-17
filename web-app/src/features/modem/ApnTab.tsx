@@ -6,7 +6,7 @@ import { toast, toastError, confirm } from '../../ui/feedback'
 import { Card, Chip, Empty, Skeleton } from '../../ui/primitives'
 
 const PDP_LABELS: Record<number, string> = { 1: 'IPv4', 2: 'IPv6', 3: 'IPv4v6' }
-const AUTH_LABELS: Record<number, string> = { 0: 'None', 1: 'PAP', 2: 'CHAP', 3: 'PAP/CHAP' }
+const AUTH_LABELS: Record<number, string> = { 0: '无', 1: 'PAP', 2: 'CHAP', 3: 'PAP/CHAP' }
 
 // ── APN mode ──────────────────────────────────────────────────────────────────
 
@@ -25,7 +25,7 @@ function ApnMode() {
     try {
       await api.apnModeSet({ apn_mode: newMode })
       setMode(newMode)
-      toast(newMode === 0 ? 'APN set to automatic' : 'APN set to manual')
+      toast(newMode === 0 ? 'APN 已设为自动模式' : 'APN 已设为手动模式')
     } catch (e) {
       toastError(e)
     } finally {
@@ -34,9 +34,9 @@ function ApnMode() {
   }
 
   return (
-    <Card title="APN mode">
+    <Card title="APN 模式">
       <p className="mb-3 text-[12px] text-ink2">
-        Automatic selects the APN from your SIM. Switch to manual to use a custom profile.
+        自动模式根据 SIM 卡选择 APN（接入点名称）；切换为手动模式可使用自定义配置。
       </p>
       <div className="flex gap-1.5">
         <button
@@ -46,7 +46,7 @@ function ApnMode() {
             mode === 0 ? 'bg-ok/12 text-ok' : 'bg-surface2 text-ink2 hover:bg-line/10'
           }`}
         >
-          Automatic
+          自动
         </button>
         <button
           onClick={() => apply(1)}
@@ -55,7 +55,7 @@ function ApnMode() {
             mode === 1 ? 'bg-accent text-white' : 'bg-surface2 text-ink2 hover:bg-line/10'
           }`}
         >
-          Manual
+          手动
         </button>
       </div>
     </Card>
@@ -107,12 +107,12 @@ function Profiles() {
         pppAuthMode: form.auth,
         pdpType: form.pdp,
       })
-      toast('APN profile added')
+      toast('已添加 APN 配置')
       setAdding(false)
       setForm({ name: '', apn: '', user: '', pass: '', auth: 0, pdp: 3 })
       fetchProfiles()
     } catch (e) {
-      toastError(e, 'Failed to add profile')
+      toastError(e, '添加配置失败')
     } finally {
       setBusy(false)
     }
@@ -121,7 +121,7 @@ function Profiles() {
   async function activateProfile(id: string) {
     try {
       await api.apnActivate({ profileId: id })
-      toast('APN activated — connection may briefly drop')
+      toast('APN 已启用，连接可能短暂中断')
       fetchProfiles()
     } catch (e) {
       toastError(e)
@@ -129,11 +129,11 @@ function Profiles() {
   }
 
   async function deleteProfile(id: string) {
-    const ok = await confirm({ title: 'Delete this APN profile?', confirmLabel: 'Delete', danger: true })
+    const ok = await confirm({ title: '删除此 APN 配置？', confirmLabel: '删除', danger: true })
     if (!ok) return
     try {
       await api.apnDelete({ profileId: id })
-      toast('Profile deleted')
+      toast('配置已删除')
       fetchProfiles()
     } catch (e) {
       toastError(e)
@@ -142,11 +142,11 @@ function Profiles() {
 
   return (
     <>
-      <Card title="APN profiles">
+      <Card title="APN 配置">
         {loading ? (
           <Skeleton className="h-20" />
         ) : profiles.length === 0 ? (
-          <Empty title="No manual APN profiles" body="Add the exact settings supplied by your carrier." />
+          <Empty title="暂无手动 APN 配置" body="请准确填写运营商提供的配置参数。" />
         ) : (
           <div className="space-y-2">
             {profiles.map((p) => (
@@ -159,7 +159,7 @@ function Profiles() {
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 text-[13px] font-semibold text-ink">
                     <span className="truncate">{p.profilename}</span>
-                    {p.isEnable && <Chip tone="ok">Active</Chip>}
+                    {p.isEnable && <Chip tone="ok">活动</Chip>}
                   </p>
                   <p className="tnum mt-0.5 truncate text-[12px] text-ink2">
                     {p.wanapn} — {PDP_LABELS[p.pdpType] ?? '?'} / {AUTH_LABELS[p.pppAuthMode] ?? '?'}
@@ -169,11 +169,11 @@ function Profiles() {
                 <div className="flex shrink-0 gap-1.5">
                   {!p.isEnable && (
                     <Button size="sm" variant="primary" onClick={() => activateProfile(p.profileId)}>
-                      Activate
+                      启用
                     </Button>
                   )}
-                  <Button size="sm" variant="ghost" disabled={p.isEnable} onClick={() => deleteProfile(p.profileId)} title={p.isEnable ? 'Switch to another APN before deleting this profile' : undefined}>
-                    Delete
+                  <Button size="sm" variant="ghost" disabled={p.isEnable} onClick={() => deleteProfile(p.profileId)} title={p.isEnable ? '请先切换到其他 APN，再删除此配置' : undefined}>
+                    删除
                   </Button>
                 </div>
               </div>
@@ -183,29 +183,29 @@ function Profiles() {
       </Card>
 
       {adding ? (
-        <Card title="Add APN profile">
+        <Card title="添加 APN 配置">
           <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-            <Field label="Profile name">
-              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="My Carrier" />
+            <Field label="配置名称">
+              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="我的运营商" />
             </Field>
-            <Field label="APN">
+            <Field label="APN（接入点名称）">
               <Input value={form.apn} onChange={(e) => setForm((f) => ({ ...f, apn: e.target.value }))} placeholder="internet" />
             </Field>
-            <Field label="Username">
-              <Input value={form.user} onChange={(e) => setForm((f) => ({ ...f, user: e.target.value }))} placeholder="(optional)" />
+            <Field label="用户名">
+              <Input value={form.user} onChange={(e) => setForm((f) => ({ ...f, user: e.target.value }))} placeholder="（选填）" />
             </Field>
-            <Field label="Password">
-              <Input type="password" autoComplete="new-password" value={form.pass} onChange={(e) => setForm((f) => ({ ...f, pass: e.target.value }))} placeholder="(optional)" />
+            <Field label="密码">
+              <Input type="password" autoComplete="new-password" value={form.pass} onChange={(e) => setForm((f) => ({ ...f, pass: e.target.value }))} placeholder="（选填）" />
             </Field>
-            <Field label="Authentication">
+            <Field label="认证方式">
               <Select value={form.auth} onChange={(e) => setForm((f) => ({ ...f, auth: parseInt(e.target.value) }))}>
-                <option value={0}>None</option>
+                <option value={0}>无</option>
                 <option value={1}>PAP</option>
                 <option value={2}>CHAP</option>
                 <option value={3}>PAP/CHAP</option>
               </Select>
             </Field>
-            <Field label="PDP type">
+            <Field label="PDP 协议类型">
               <Select value={form.pdp} onChange={(e) => setForm((f) => ({ ...f, pdp: parseInt(e.target.value) }))}>
                 <option value={3}>IPv4v6</option>
                 <option value={1}>IPv4</option>
@@ -215,16 +215,16 @@ function Profiles() {
           </div>
           <div className="mt-3 flex gap-2">
             <Button variant="primary" onClick={addProfile} loading={busy} disabled={!form.name || !form.apn}>
-              Add profile
+              添加配置
             </Button>
             <Button variant="ghost" onClick={() => setAdding(false)}>
-              Cancel
+              取消
             </Button>
           </div>
         </Card>
       ) : (
         <Button variant="primary" onClick={() => setAdding(true)}>
-          Add APN profile
+          添加 APN 配置
         </Button>
       )}
 

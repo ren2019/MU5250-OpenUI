@@ -1,5 +1,7 @@
 # MU5250-OpenUI
 
+简体中文 WebUI 分支：本地预览、覆盖范围、验证结果与已知限制见 [汉化交付说明](docs/LOCALIZATION.zh-CN.md)。
+
 A custom control plane for the ZTE U60 Pro (MU5250) 5G modem: a Rust agent
 running on the device exposes a JSON API (`http://192.168.0.1:9090`), and a
 React dashboard served from the device (`http://192.168.0.1:8080`) turns it

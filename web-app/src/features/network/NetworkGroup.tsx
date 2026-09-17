@@ -12,15 +12,15 @@ export default function NetworkGroup() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-bold text-ink">Network</h1>
-        <p className="mt-0.5 text-[13px] text-ink2">Connected clients, Wi-Fi and router settings</p>
+        <h1 className="text-xl font-bold text-ink">网络</h1>
+        <p className="mt-0.5 text-[13px] text-ink2">已连接设备、Wi-Fi 与路由设置</p>
       </div>
 
       <Tabs
         tabs={[
-          { id: 'clients', label: 'Clients' },
+          { id: 'clients', label: '连接设备' },
           { id: 'wifi', label: 'Wi-Fi' },
-          { id: 'router', label: 'Router' },
+          { id: 'router', label: '路由设置' },
         ]}
         active={tab}
         onChange={setTab}

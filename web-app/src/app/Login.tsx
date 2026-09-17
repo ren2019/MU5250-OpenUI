@@ -1,3 +1,4 @@
+import { DemoNotice } from '../ui/DemoNotice'
 import { useState } from 'react'
 import { login, setToken } from '../data/client'
 import { ISignal } from '../icons'
@@ -29,7 +30,7 @@ export default function Login({ onAuthed }: { onAuthed: () => void }) {
       setToken(token)
       onAuthed()
     } catch (error) {
-      setErr(error instanceof Error ? error.message : 'Sign in failed')
+      setErr(error instanceof Error ? error.message : '登录失败')
     } finally {
       setBusy(false)
     }
@@ -45,9 +46,10 @@ export default function Login({ onAuthed }: { onAuthed: () => void }) {
             <ISignal size={24} />
           </div>
           <h1 className="text-lg font-bold text-ink">ZTE U60 Pro</h1>
-          <p className="mt-0.5 text-[13px] text-ink2">Sign in to the dashboard</p>
+          <p className="mt-0.5 text-[13px] text-ink2">登录管理面板</p>
         </div>
 
+        <DemoNotice />
         <form
           onSubmit={submit}
           className="space-y-4 rounded-xl border border-line/8 bg-surface p-5"
@@ -56,8 +58,8 @@ export default function Login({ onAuthed }: { onAuthed: () => void }) {
             <div className="flex justify-center">
               <Segmented
                 options={[
-                  { value: 'pin', label: 'PIN' },
-                  { value: 'password', label: 'Password' },
+                  { value: 'pin', label: 'PIN 码' },
+                  { value: 'password', label: '密码' },
                 ]}
                 value={mode}
                 onChange={(m) => {
@@ -81,7 +83,7 @@ export default function Login({ onAuthed }: { onAuthed: () => void }) {
               autoFocus
               autoComplete="one-time-code"
               enterKeyHint="done"
-              aria-label="PIN"
+              aria-label="PIN 码"
             />
           ) : (
             <input
@@ -89,17 +91,17 @@ export default function Login({ onAuthed }: { onAuthed: () => void }) {
               value={pw}
               onChange={(e) => setPw(e.target.value)}
               className="h-11 w-full rounded-lg border border-line/12 bg-surface2/50 px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-ink3 focus:border-accent/60"
-              placeholder="Agent password"
+              placeholder="管理服务密码"
               autoFocus
               autoComplete="current-password"
-              aria-label="Agent password"
+              aria-label="管理服务密码"
             />
           )}
 
           {err && <p className="text-xs font-medium text-danger">{err}</p>}
 
           <Button type="submit" variant="primary" loading={busy} disabled={!canSubmit} className="w-full !h-11">
-            Sign in
+            登录
           </Button>
         </form>
       </div>

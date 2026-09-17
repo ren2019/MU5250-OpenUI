@@ -19,7 +19,7 @@ export function toast(text: string, kind: 'ok' | 'err' = 'ok') {
   pushToast?.({ id: ++toastId, text, kind })
 }
 
-export function toastError(e: unknown, fallback = 'Something went wrong') {
+export function toastError(e: unknown, fallback = '操作失败') {
   toast(e instanceof Error ? e.message : fallback, 'err')
 }
 
@@ -127,10 +127,10 @@ export function ConfirmHost() {
         {opts.body && <p className="mt-1.5 text-[13px] leading-relaxed text-ink2">{opts.body}</p>}
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="ghost" onClick={() => close(false)}>
-            Cancel
+            取消
           </Button>
           <Button variant={opts.danger ? 'danger' : 'primary'} onClick={() => close(true)} autoFocus>
-            {opts.confirmLabel ?? 'Confirm'}
+            {opts.confirmLabel ?? '确认'}
           </Button>
         </div>
       </div>

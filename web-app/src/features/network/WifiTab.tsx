@@ -24,29 +24,29 @@ function getBandInsights(suffix: '2g' | '5g', band: WifiBand): string[] {
   const actualChannel = band.actualChannel ?? band.channel
 
   if (configuredChannel === 'auto' && actualChannel != null) {
-    insights.push(`Auto channel selected ${actualChannel} at runtime.`)
+    insights.push(`当前自动选择的信道为 ${actualChannel}。`)
   }
   if (configuredChannel !== 'auto') {
     const configuredNum = parseInt(configuredChannel, 10)
     if (!Number.isNaN(configuredNum)) {
       if (actualChannel != null && configuredNum !== actualChannel) {
-        insights.push(`Configured channel ${configuredNum}, currently operating on ${actualChannel}.`)
+        insights.push(`设置信道为 ${configuredNum}，当前实际使用信道 ${actualChannel}。`)
       }
       if (suffix === '2g' && ![1, 6, 11].includes(configuredNum)) {
-        insights.push('2.4 GHz usually performs best on channels 1, 6, or 11 to reduce overlap.')
+        insights.push('2.4 GHz 通常使用 1、6 或 11 信道可减少重叠干扰。')
       }
       if (suffix === '5g' && DFS_5G_CHANNELS.has(String(configuredNum))) {
-        insights.push('DFS channel selected — radar events can force channel changes.')
+        insights.push('已选择 DFS 信道，检测到雷达时可能被强制切换信道。')
       }
     }
   }
   const configuredBw = (band.configuredBandwidth ?? '').toUpperCase()
   const actualBw = (band.actualBandwidth ?? band.bandwidth ?? '').toUpperCase()
   if (configuredBw && actualBw && configuredBw !== actualBw) {
-    insights.push(`Configured bandwidth ${configuredBw}, runtime reports ${actualBw}.`)
+    insights.push(`设置带宽为 ${configuredBw}，当前实际带宽为 ${actualBw}。`)
   }
   if ((band.clients ?? 0) >= 15) {
-    insights.push('High client count detected. Fixed channels can improve stability.')
+    insights.push('当前连接设备较多，固定信道可能有助于提高稳定性。')
   }
   return insights
 }
@@ -98,12 +98,12 @@ function BandCard({
       if (htmode && htmode !== band.configuredBandwidth) settings[`htmode_${suffix}`] = htmode
       if (txpower) settings[`txpower_${suffix}`] = txpower
       await api.wifiSet(settings)
-      toast('Saved — Wi-Fi may reconnect')
+      toast('已保存，Wi-Fi 可能重新连接')
       setPasswordDirty(false)
       setEditing(false)
       onRefresh()
     } catch (e) {
-      toastError(e, 'Save failed')
+      toastError(e, '保存失败')
     } finally {
       setBusy(false)
     }
@@ -114,7 +114,7 @@ function BandCard({
     try {
       const key = suffix === '2g' ? 'radio2_disabled' : 'radio5_disabled'
       await api.wifiSet({ [key]: band.enabled ? '1' : '0' })
-      toast(band.enabled ? 'Radio disabled' : 'Radio enabled')
+      toast(band.enabled ? '无线频段已禁用' : '无线频段已启用')
       onRefresh()
     } catch (e) {
       toastError(e)
@@ -137,7 +137,7 @@ function BandCard({
       action={
         !editing ? (
           <Button size="sm" variant="ghost" onClick={() => setEditing(true)}>
-            Edit
+            编辑
           </Button>
         ) : (
           <div className="flex gap-1.5">
@@ -155,10 +155,10 @@ function BandCard({
                 setHidden(band.hidden)
               }}
             >
-              Cancel
+              取消
             </Button>
             <Button size="sm" variant="primary" onClick={handleSave} loading={busy}>
-              Save
+              保存
             </Button>
           </div>
         )
@@ -171,26 +171,26 @@ function BandCard({
               className={`h-2 w-2 rounded-full ${masterEnabled ? (band.enabled ? 'bg-ok' : 'bg-danger') : 'bg-warn'}`}
             />
             <span className="text-[13px] text-ink2">
-              {masterEnabled ? (band.enabled ? 'Enabled' : 'Disabled') : 'Master off'}
+              {masterEnabled ? (band.enabled ? '已启用' : '已禁用') : '总开关已关闭'}
             </span>
             {band.clients != null && (
               <span className="text-[12px] text-ink3">
-                {band.clients} client{band.clients !== 1 ? 's' : ''}
+                {band.clients} 台设备
               </span>
             )}
           </div>
-          <Toggle checked={band.enabled} onChange={toggleRadio} disabled={busy} label={`Toggle ${label} radio`} />
+          <Toggle checked={band.enabled} onChange={toggleRadio} disabled={busy} label={`切换 ${label} 无线频段`} />
         </div>
         {!masterEnabled && (
-          <p className="text-[12px] text-warn">Global Wi-Fi is off. Band settings are still saved.</p>
+          <p className="text-[12px] text-warn">Wi-Fi 总开关已关闭，各频段设置仍会保留。</p>
         )}
 
         {editing ? (
           <>
-            <Field label="SSID">
+            <Field label="SSID（网络名称）">
               <Input value={ssid} onChange={(e) => setSsid(e.target.value)} />
             </Field>
-            <Field label="Password" hint="Leave unchanged to keep the current password">
+            <Field label="密码" hint="不修改此项即可保留当前密码">
               <Input
                 type="password"
                 value={password}
@@ -201,16 +201,16 @@ function BandCard({
               />
             </Field>
             <div className="grid grid-cols-2 gap-2 border-t border-line/8 pt-3">
-              <Field label="Channel">
+              <Field label="信道">
                 <Select value={channel} onChange={(e) => setChannel(e.target.value)}>
                   {channels.map((c) => (
                     <option key={c} value={c}>
-                      {c === 'auto' ? 'Auto' : c}
+                      {c === 'auto' ? '自动' : c}
                     </option>
                   ))}
                 </Select>
               </Field>
-              <Field label="Bandwidth">
+              <Field label="带宽">
                 <Select value={htmode} onChange={(e) => setHtmode(e.target.value)}>
                   {htmodes.map((m) => (
                     <option key={m} value={m}>
@@ -219,9 +219,9 @@ function BandCard({
                   ))}
                 </Select>
               </Field>
-              <Field label="TX power">
+              <Field label="发射功率">
                 <Select value={txpower} onChange={(e) => setTxpower(e.target.value)}>
-                  <option value="">Default</option>
+                  <option value="">默认</option>
                   <option value="100">100%</option>
                   <option value="75">75%</option>
                   <option value="50">50%</option>
@@ -229,23 +229,23 @@ function BandCard({
                 </Select>
               </Field>
               <div className="flex items-end gap-2 pb-1.5">
-                <Toggle checked={hidden} onChange={setHidden} label="Hidden SSID" />
-                <span className="text-[12px] font-medium text-ink2">Hidden SSID</span>
+                <Toggle checked={hidden} onChange={setHidden} label="隐藏 SSID" />
+                <span className="text-[12px] font-medium text-ink2">隐藏 SSID</span>
               </div>
             </div>
           </>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              <Info label="SSID" value={band.ssid ?? '\u2014'} strong />
-              <Info label="Password" value={band.password ?? '\u2014'} mono />
-              <Info label="Channel" value={configuredChannel === 'auto' ? `Auto (${band.actualChannel ?? band.channel ?? '\u2014'})` : configuredChannel} />
-              <Info label="Bandwidth" value={formatBandwidthMode(band.configuredBandwidth)} />
-              <Info label="Security" value={band.security ?? '\u2014'} />
-              <Info label="Hidden" value={band.hidden ? 'Yes' : 'No'} />
+              <Info label="SSID（网络名称）" value={band.ssid ?? '\u2014'} strong />
+              <Info label="密码" value={band.password ?? '\u2014'} mono />
+              <Info label="信道" value={configuredChannel === 'auto' ? `自动（${band.actualChannel ?? band.channel ?? '\u2014'}）` : configuredChannel} />
+              <Info label="带宽" value={formatBandwidthMode(band.configuredBandwidth)} />
+              <Info label="安全模式" value={band.security ?? '\u2014'} />
+              <Info label="已隐藏" value={band.hidden ? '是' : '否'} />
             </div>
             <div className="rounded-lg bg-surface2/70 px-3 py-2">
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-ink3">Channel insights</p>
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-ink3">信道提示</p>
               {insights.length > 0 ? (
                 <div className="space-y-1">
                   {insights.map((insight, i) => (
@@ -255,7 +255,7 @@ function BandCard({
                   ))}
                 </div>
               ) : (
-                <p className="text-[12px] text-ink3">No obvious channel conflicts detected.</p>
+                <p className="text-[12px] text-ink3">未发现明显的信道冲突。</p>
               )}
             </div>
           </>
@@ -297,7 +297,7 @@ export default function WifiTab() {
     setBusy(true)
     try {
       await api.wifiSet({ wifi_onoff: next ? '1' : '0' })
-      toast(next ? 'Global Wi-Fi enabled' : 'Global Wi-Fi disabled')
+      toast(next ? 'Wi-Fi 总开关已开启' : 'Wi-Fi 总开关已关闭')
       refresh()
     } catch (e) {
       toastError(e)
@@ -314,7 +314,7 @@ export default function WifiTab() {
     const targetLabel = source === '2g' ? '5 GHz' : '2.4 GHz'
 
     if (!sourceBand.ssid) {
-      toast(`Cannot sync from ${sourceLabel}: source SSID is empty`, 'err')
+      toast(`无法从 ${sourceLabel} 同步：来源 SSID 为空`, 'err')
       return
     }
 
@@ -329,7 +329,7 @@ export default function WifiTab() {
     setSyncBusy(true)
     try {
       await api.wifiSet(payload)
-      toast(`Copied ${sourceLabel} settings to ${targetLabel}${includePassword ? ' (including password)' : ''}`)
+      toast(`已将 ${sourceLabel} 配置复制到 ${targetLabel}${includePassword ? ' （包含密码）' : ''}`)
       refresh()
     } catch (e) {
       toastError(e)
@@ -349,42 +349,42 @@ export default function WifiTab() {
 
   return (
     <div className="space-y-3">
-      <Card title="Global Wi-Fi">
+      <Card title="Wi-Fi 总开关">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-[13px] font-medium text-ink">Master switch</p>
+            <p className="text-[13px] font-medium text-ink">总开关</p>
             <p className="mt-0.5 text-[12px] text-ink2">
               {!wifi.master_supported
-                ? 'This firmware does not expose a reliable global Wi-Fi toggle.'
+                ? '此固件未提供可靠的 Wi-Fi 总开关接口。'
                 : wifi.master_enabled
-                  ? 'On — radios follow your per-band settings'
-                  : 'Off — all Wi-Fi radios are globally disabled'}
+                  ? '已开启，各无线频段按各自设置运行'
+                  : '已关闭，所有 Wi-Fi 频段均已禁用'}
             </p>
           </div>
-          <Toggle checked={wifi.master_enabled} onChange={toggleMaster} disabled={busy || !wifi.master_supported} label="Master Wi-Fi switch" />
+          <Toggle checked={wifi.master_enabled} onChange={toggleMaster} disabled={busy || !wifi.master_supported} label="Wi-Fi 总开关" />
         </div>
         {wifi.wifi6_supported && (
           <div className="mt-3 border-t border-line/8 pt-3">
-            <Chip tone={wifi.wifi6_enabled ? 'ok' : 'default'}>Wi-Fi 6 {wifi.wifi6_enabled ? 'enabled' : 'disabled'}</Chip>
+            <Chip tone={wifi.wifi6_enabled ? 'ok' : 'default'}>Wi-Fi 6 {wifi.wifi6_enabled ? '已启用' : '已禁用'}</Chip>
           </div>
         )}
         {wifi.wifi7_supported && (
           <div className="mt-3 border-t border-line/8 pt-3">
-            <Chip tone="ok">Wi-Fi 7 / 802.11be supported</Chip>
+            <Chip tone="ok">支持 Wi-Fi 7 / 802.11be</Chip>
           </div>
         )}
       </Card>
 
-      <Card title="Band sync">
+      <Card title="同步频段配置">
         <p className="mb-2.5 text-[12px] text-ink2">
-          Copy SSID, password, security and hidden-state from one band to the other.
+          将一个频段的 SSID、密码、安全模式及隐藏状态复制到另一个频段。
         </p>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => syncBands('2g')} loading={syncBusy}>
-            Use 2.4 GHz for both
+            以 2.4 GHz 配置同步两频段
           </Button>
           <Button variant="outline" onClick={() => syncBands('5g')} loading={syncBusy}>
-            Use 5 GHz for both
+            以 5 GHz 配置同步两频段
           </Button>
         </div>
       </Card>
@@ -395,9 +395,9 @@ export default function WifiTab() {
       </div>
 
       {wifi.guest_ssid && (
-        <Card title="Guest network">
+        <Card title="访客网络">
           <p className="text-[13px] text-ink2">
-            SSID: <span className="font-semibold text-ink">{wifi.guest_ssid}</span>
+            SSID： <span className="font-semibold text-ink">{wifi.guest_ssid}</span>
           </p>
         </Card>
       )}

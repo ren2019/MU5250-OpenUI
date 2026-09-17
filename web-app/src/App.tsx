@@ -6,6 +6,7 @@ import Shell, { type Group } from './app/Shell'
 import { useTheme } from './app/theme'
 import { ConfirmHost, Toaster } from './ui/feedback'
 
+
 const HomePage = lazy(() => import('./features/home/HomePage'))
 const SignalGroup = lazy(() => import('./features/signal/SignalGroup'))
 const NetworkGroup = lazy(() => import('./features/network/NetworkGroup'))

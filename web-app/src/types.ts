@@ -20,6 +20,8 @@ export interface SignalInfo {
   carrier?: string
   signal_bars?: number
   cell_id?: string
+  lte_cell_id?: string
+  nr_cell_id?: string
   lte_carriers: CarrierComponent[]
   nr_carriers: CarrierComponent[]
   net_select?: string
@@ -41,6 +43,9 @@ export interface BatteryInfo {
 
 /** Live WAN throughput, in **bytes** per second (`formatSpeed` converts to bits). */
 export interface SpeedInfo {
+  /** Preserve missing raw fields for diagnostics; legacy displays still use the numeric defaults. */
+  rx_available?: boolean
+  tx_available?: boolean
   rx_bps: number
   tx_bps: number
   max_rx_bps: number
@@ -193,6 +198,9 @@ export interface ThermalInfo {
 
 export interface ThermalAll {
   available: boolean
+  /** Freshness of the modem sensor only, not the CPU thermal zones. */
+  source?: SourceFreshness
+  modem_supported?: boolean
   cpu_0?: number
   cpu_1?: number
   cpu_2?: number

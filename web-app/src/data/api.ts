@@ -176,7 +176,7 @@ export function mapSignal(d: Record<string, unknown>): SignalInfo {
   const lteHasValidData =
     pccBandStr && pccBandStr !== '0' && pccBandStr !== 'B' && pccBandStr !== 'B0' && pccEarfcn != null && pccEarfcn > 0
 
-  if (lteRsrp != null && lteHasValidData) {
+  if (lteHasValidData) {
     lteCarriers.push({
       label: 'PCC',
       band: pccBandNum ? `B${pccBandNum}` : pccBandStr,
@@ -208,8 +208,8 @@ export function mapSignal(d: Record<string, unknown>): SignalInfo {
         earfcn: parseInt(e.earfcn) || 0,
         bandwidth: `${e.bw} MHz`,
         freq: bandNum ? earfcnToFreq(parseInt(e.earfcn) || 0, bandNum) : undefined,
-        rsrp: sig?.rsrp === 0 ? undefined : sig?.rsrp,
-        rsrq: sig?.rsrq === 0 ? undefined : sig?.rsrq,
+        rsrp: sig?.rsrp,
+        rsrq: sig?.rsrq,
         sinr: sig?.sinr,
         rssi: sig?.rssi === 0 ? undefined : sig?.rssi,
         ul_configured: sig?.ul_configured,
@@ -224,7 +224,7 @@ export function mapSignal(d: Record<string, unknown>): SignalInfo {
   const nrBand = (d.nr5g_action_band as string) ?? ''
   const nrArfcn = (d.nr5g_action_channel as number) ?? 0
   const nrHasValidData = nrBand && nrBand !== '0' && nrBand !== 'n' && nrBand !== 'n0' && nrArfcn > 0
-  if (nrRsrp != null && nrHasValidData) {
+  if (nrHasValidData) {
     const nrBwRaw = (d.nr5g_bandwidth as string) ?? ''
     nrCarriers.push({
       label: 'PCC',
@@ -308,6 +308,8 @@ export function mapSignal(d: Record<string, unknown>): SignalInfo {
     carrier: (d.network_provider_fullname || d.network_provider) as string | undefined,
     signal_bars: d.signalbar ? parseInt(d.signalbar as string) : undefined,
     cell_id: formatCellId(rawCellId as number | string | undefined),
+    lte_cell_id: formatCellId(d.cell_id as number | string | undefined),
+    nr_cell_id: formatCellId(d.nr5g_cell_id as number | string | undefined),
     lte_carriers: lteCarriers,
     nr_carriers: nrCarriers,
     net_select: d.net_select as string | undefined,
@@ -336,6 +338,8 @@ function mapBattery(d: Record<string, unknown>): BatteryInfo {
  */
 function mapSpeed(d: Record<string, unknown>): SpeedInfo {
   return {
+    rx_available: typeof d.rx_speed === 'number' && Number.isFinite(d.rx_speed),
+    tx_available: typeof d.tx_speed === 'number' && Number.isFinite(d.tx_speed),
     rx_bps: (d.rx_speed as number) || 0,
     tx_bps: (d.tx_speed as number) || 0,
     max_rx_bps: (d.max_rx_speed as number) || 0,

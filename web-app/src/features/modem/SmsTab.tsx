@@ -1,3 +1,4 @@
+import { errorLabel } from '../../data/client'
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../../data/api'
 import type { SmsCapabilities, SmsMessage } from '../../types'
@@ -16,7 +17,7 @@ function formatDate(d?: string) {
     const value = stock
       ? new Date(2000 + Number(stock[1]), Number(stock[2]) - 1, Number(stock[3]), Number(stock[4]), Number(stock[5]), Number(stock[6]))
       : new Date(d)
-    return Number.isNaN(value.getTime()) ? d : value.toLocaleString()
+    return Number.isNaN(value.getTime()) ? d : value.toLocaleString('zh-CN')
   } catch {
     return d
   }
@@ -63,15 +64,15 @@ export default function SmsTab() {
   }
 
   async function deleteMsg(id: number) {
-    const ok = await confirm({ title: 'Delete this message?', confirmLabel: 'Delete', danger: true })
+    const ok = await confirm({ title: '删除这条短信？', confirmLabel: '删除', danger: true })
     if (!ok) return
     try {
       await api.smsDelete([id])
       setMessages((m) => m.filter((x) => x.id !== id))
       if (selected?.id === id) setSelected(null)
-      toast('Message deleted')
+      toast('短信已删除')
     } catch (e) {
-      toastError(e, 'Delete failed')
+      toastError(e, '删除失败')
     }
   }
 
@@ -88,13 +89,13 @@ export default function SmsTab() {
     setSending(true)
     try {
       await api.smsSend(to, text)
-      toast('Message sent')
+      toast('短信已发送')
       setTo('')
       setText('')
       setComposing(false)
       if (box === BOX_SENT) load()
     } catch (err) {
-      toastError(err, 'Failed to send')
+      toastError(err, '发送失败')
     } finally {
       setSending(false)
     }
@@ -105,11 +106,11 @@ export default function SmsTab() {
   if (capabilities === undefined) return <Skeleton className="h-64" />
   if (!capabilities?.available || !capabilities.ready) {
     return (
-      <Card title="SMS unavailable">
+      <Card title="短信功能不可用">
         <Empty
           icon={<IMessage size={26} />}
-          title="Firmware WMS is not ready"
-          body={capabilities?.reason ?? 'The agent could not verify the SMS service, so listing, sending, and deletion are disabled.'}
+          title="固件短信服务（WMS）尚未就绪"
+          body={capabilities?.reason ? errorLabel(capabilities.reason) : '管理服务无法确认短信服务状态，已禁用短信列表、发送和删除功能。'}
         />
       </Card>
     )
@@ -120,8 +121,8 @@ export default function SmsTab() {
       <div className="flex items-center justify-between">
         <Segmented
           options={[
-            { value: String(BOX_INBOX), label: unread > 0 ? `Inbox (${unread})` : 'Inbox' },
-            { value: String(BOX_SENT), label: 'Sent' },
+            { value: String(BOX_INBOX), label: unread > 0 ? `收件箱（${unread}）` : '收件箱' },
+            { value: String(BOX_SENT), label: '已发送' },
           ]}
           value={String(box)}
           onChange={(v) => {
@@ -136,32 +137,32 @@ export default function SmsTab() {
             setSelected(null)
           }}
         >
-          <IPlus size={14} /> New
+          <IPlus size={14} /> 新建
         </Button>
       </div>
 
       {composing && (
-        <Card title="New message">
+        <Card title="新短信">
           <form onSubmit={send} className="space-y-2.5">
-            <Field label="To">
+            <Field label="收件人">
               <Input value={to} onChange={(e) => setTo(e.target.value)} required placeholder="+61400000000" inputMode="tel" />
             </Field>
-            <Field label="Message">
+            <Field label="短信内容">
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 required
                 rows={4}
                 className="w-full resize-none rounded-lg border border-line/12 bg-surface2/50 px-3 py-2 text-[13px] text-ink outline-none transition-colors placeholder:text-ink3 focus:border-accent/60"
-                placeholder="Type a message…"
+                placeholder="输入短信内容…"
               />
             </Field>
             <div className="flex items-center gap-2">
               <Button type="submit" variant="primary" loading={sending} disabled={!to || !text}>
-                Send
+                发送
               </Button>
               <Button type="button" variant="ghost" onClick={() => setComposing(false)}>
-                Cancel
+                取消
               </Button>
               <span className="tnum ml-auto text-[11px] text-ink3">{text.length}/160</span>
             </div>
@@ -170,7 +171,7 @@ export default function SmsTab() {
       )}
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <Card className="lg:col-span-1" title={box === BOX_INBOX ? 'Inbox' : 'Sent'} pad={false}>
+        <Card className="lg:col-span-1" title={box === BOX_INBOX ? '收件箱' : '已发送'} pad={false}>
           {loading ? (
             <div className="space-y-2 p-4">
               <Skeleton className="h-14" />
@@ -178,7 +179,7 @@ export default function SmsTab() {
               <Skeleton className="h-14" />
             </div>
           ) : messages.length === 0 ? (
-            <Empty icon={<IMessage size={26} />} title="No messages" />
+            <Empty icon={<IMessage size={26} />} title="暂无短信" />
           ) : (
             <ul className="max-h-[32rem] divide-y divide-line/6 overflow-y-auto">
               {messages.map((m) => (
@@ -204,18 +205,18 @@ export default function SmsTab() {
           )}
         </Card>
 
-        <Card className="lg:col-span-2" title={selected ? 'Message' : 'Select a message'}>
+        <Card className="lg:col-span-2" title={selected ? '短信内容' : '请选择一条短信'}>
           {selected ? (
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="truncate text-[13px] font-semibold text-ink">
-                    {box === BOX_INBOX ? 'From' : 'To'}: {selected.number || '\u2014'}
+                    {box === BOX_INBOX ? '发件人' : '收件人'}: {selected.number || '\u2014'}
                   </p>
                   <p className="tnum mt-0.5 text-[11px] text-ink3">{formatDate(selected.date)}</p>
                 </div>
                 <Button size="sm" variant="ghost" onClick={() => deleteMsg(selected.id)}>
-                  Delete
+                  删除
                 </Button>
               </div>
               <div className="rounded-lg bg-surface2/70 p-3.5">
@@ -230,12 +231,12 @@ export default function SmsTab() {
                     setSelected(null)
                   }}
                 >
-                  Reply
+                  回复
                 </Button>
               )}
             </div>
           ) : (
-            <Empty icon={<IMessage size={26} />} title="No message selected" />
+            <Empty icon={<IMessage size={26} />} title="尚未选择短信" />
           )}
         </Card>
       </div>

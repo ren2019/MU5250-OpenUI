@@ -28,7 +28,7 @@ function cycleWindow(resetDay: number, now = new Date()) {
 }
 
 function formatDate(date: Date) {
-  return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+  return date.toLocaleDateString('zh-CN', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 function UsageTotals({ usage }: { usage: UsagePeriod }) {
@@ -36,15 +36,15 @@ function UsageTotals({ usage }: { usage: UsagePeriod }) {
   return (
     <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
       <div className="rounded-lg bg-surface2/70 p-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-ok">Download</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-ok">下载</p>
         <p className="tnum mt-1 text-xl font-bold text-ink">{formatBytes(usage.rx_bytes)}</p>
       </div>
       <div className="rounded-lg bg-surface2/70 p-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-accent">Upload</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-accent">上传</p>
         <p className="tnum mt-1 text-xl font-bold text-ink">{formatBytes(usage.tx_bytes)}</p>
       </div>
       <div className="rounded-lg bg-surface2/70 p-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">Total</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-ink3">累计</p>
         <p className="tnum mt-1 text-xl font-bold text-ink">{formatBytes(total)}</p>
       </div>
     </div>
@@ -68,17 +68,17 @@ export default function DataTab() {
   const saveResetDay = useCallback(async () => {
     const day = parseInt(resetDay, 10)
     if (!day || day < 1 || day > 31) {
-      toast('Reset day must be between 1 and 31', 'err')
+      toast('重置日必须在 1 至 31 日之间', 'err')
       return
     }
     setBusy(true)
     try {
       await api.dataUsageResetDaySet(day)
       setEditingResetDay(false)
-      toast(`Reset day set to day ${day}`)
+      toast(`重置日已设为每月 ${day} 日`)
       refresh()
     } catch (e) {
-      toastError(e, 'Failed to set reset day')
+      toastError(e, '设置重置日失败')
     } finally {
       setBusy(false)
     }
@@ -101,24 +101,24 @@ export default function DataTab() {
   return (
     <div className="space-y-3">
       <Card
-        title="Current data cycle"
+        title="当前流量周期"
         action={
           <Button size="sm" variant="ghost" onClick={() => setEditingResetDay((v) => !v)}>
-            Set reset day
+            设置重置日
           </Button>
         }
       >
         {editingResetDay && (
           <div className="mb-3 flex flex-wrap items-end gap-2 rounded-lg bg-surface2/70 p-3">
             <div className="w-28">
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-ink3">Reset day</p>
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-ink3">每月重置日</p>
               <Input type="number" min={1} max={31} value={resetDay} onChange={(e) => setResetDay(e.target.value)} />
             </div>
             <Button variant="primary" onClick={saveResetDay} loading={busy}>
-              Save
+              保存
             </Button>
             <Button variant="ghost" onClick={() => setEditingResetDay(false)}>
-              Cancel
+              取消
             </Button>
           </div>
         )}
@@ -127,48 +127,48 @@ export default function DataTab() {
           <div className="space-y-3">
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-ink2">
               <span>
-                Reset day: <span className="tnum font-bold text-ink">{currentResetDay}</span>
+                重置日： <span className="tnum font-bold text-ink">{currentResetDay}</span>
               </span>
               <span>
-                Period: <span className="font-bold text-ink">{formatDate(dates.start)} – {formatDate(dates.end)}</span>
+                统计周期： <span className="font-bold text-ink">{formatDate(dates.start)} – {formatDate(dates.end)}</span>
               </span>
               <span>
-                Next reset: <span className="font-bold text-ink">{formatDate(dates.nextStart)}</span>
+                下次重置： <span className="font-bold text-ink">{formatDate(dates.nextStart)}</span>
               </span>
             </div>
             <UsageTotals usage={cycle} />
             <p className="text-[12px] text-ink3">
-              Counters are maintained by the router and reset on the configured day each month.
+              流量计数由路由器维护，每月在指定日期重置。
             </p>
           </div>
         ) : (
-          <p className="text-[13px] text-ink3">No cycle data</p>
+          <p className="text-[13px] text-ink3">暂无周期数据</p>
         )}
       </Card>
 
       {sincePowerOn && (
-        <Card title="Since power on">
+        <Card title="本次开机以来">
           <UsageTotals usage={sincePowerOn} />
-          <p className="mt-2 text-[12px] text-ink3">Counter time: {formatUptime(sincePowerOn.time_secs)}</p>
+          <p className="mt-2 text-[12px] text-ink3">统计时长： {formatUptime(sincePowerOn.time_secs)}</p>
         </Card>
       )}
 
-      <Card title="Other counters" pad={false}>
+      <Card title="其他统计" pad={false}>
         <div className="overflow-x-auto px-4 pb-3">
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-line/8 text-left text-[11px] uppercase tracking-wider text-ink3">
-                <th className="pb-1.5 pr-4 font-semibold">Period</th>
-                <th className="pb-1.5 pr-4 text-right font-semibold">Down</th>
-                <th className="pb-1.5 pr-4 text-right font-semibold">Up</th>
-                <th className="pb-1.5 pr-4 text-right font-semibold">Total</th>
-                <th className="pb-1.5 text-right font-semibold">Time</th>
+                <th className="pb-1.5 pr-4 font-semibold">周期</th>
+                <th className="pb-1.5 pr-4 text-right font-semibold">下载</th>
+                <th className="pb-1.5 pr-4 text-right font-semibold">上传</th>
+                <th className="pb-1.5 pr-4 text-right font-semibold">累计</th>
+                <th className="pb-1.5 text-right font-semibold">时长</th>
               </tr>
             </thead>
             <tbody>
               {[
-                { label: 'Today', data: usage.day },
-                { label: 'Device lifetime', data: usage.total },
+                { label: '今日', data: usage.day },
+                { label: '设备累计', data: usage.total },
               ].map(({ label, data: d }) => (
                 <tr key={label} className="border-b border-line/6 last:border-0">
                   <td className="py-2 pr-4 text-ink2">{label}</td>
