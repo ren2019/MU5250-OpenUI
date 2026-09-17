@@ -2,9 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { PollScheduler } from './pollScheduler'
 
 const cache = new Map<string, unknown>()
+const receivedTimes = new Map<string, number>()
 
 export interface PollResult<T> {
   data: T | null
+  receivedAt: number | null
   error: string | null
   refreshing: boolean
   refresh: () => void
@@ -18,6 +20,7 @@ export function usePoll<T>(
   enabled = true,
 ): PollResult<T> {
   const [data, setData] = useState<T | null>(() => (cache.get(key) as T | undefined) ?? null)
+  const [receivedAt, setReceivedAt] = useState<number | null>(() => receivedTimes.get(key) ?? null)
   const [error, setError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const fnRef = useRef(fn)
@@ -34,7 +37,10 @@ export function usePoll<T>(
     const poll = new PollScheduler<T>({
       read: () => fnRef.current(),
       publish: (value) => {
+        const now = Date.now()
         cache.set(key, value)
+        receivedTimes.set(key, now)
+        setReceivedAt(now)
         setData(value)
         setError(null)
       },
@@ -56,5 +62,5 @@ export function usePoll<T>(
 
   const refresh = useCallback(() => scheduler.current?.refresh(), [])
   const mutate = useCallback((value: T) => scheduler.current?.mutate(value), [])
-  return { data, error, refreshing, refresh, mutate }
+  return { data, receivedAt, error, refreshing, refresh, mutate }
 }

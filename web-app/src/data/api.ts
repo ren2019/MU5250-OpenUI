@@ -336,6 +336,8 @@ function mapBattery(d: Record<string, unknown>): BatteryInfo {
  */
 function mapSpeed(d: Record<string, unknown>): SpeedInfo {
   return {
+    rx_available: typeof d.rx_speed === 'number' && Number.isFinite(d.rx_speed),
+    tx_available: typeof d.tx_speed === 'number' && Number.isFinite(d.tx_speed),
     rx_bps: (d.rx_speed as number) || 0,
     tx_bps: (d.tx_speed as number) || 0,
     max_rx_bps: (d.max_rx_speed as number) || 0,

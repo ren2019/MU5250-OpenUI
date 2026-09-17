@@ -41,6 +41,9 @@ export interface BatteryInfo {
 
 /** Live WAN throughput, in **bytes** per second (`formatSpeed` converts to bits). */
 export interface SpeedInfo {
+  /** Preserve missing raw fields for diagnostics; legacy displays still use the numeric defaults. */
+  rx_available?: boolean
+  tx_available?: boolean
   rx_bps: number
   tx_bps: number
   max_rx_bps: number
