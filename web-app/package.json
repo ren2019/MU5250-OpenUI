@@ -13,8 +13,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --test tools/test-*.cjs",
-    "prototype:diagnostics": "node tools/prototype-diagnostics.mjs"
+    "test": "node --test tools/test-*.cjs"
   },
   "dependencies": {
     "react": "^19.2.4",

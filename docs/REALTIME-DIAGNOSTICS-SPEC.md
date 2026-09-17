@@ -1,14 +1,14 @@
 # 实时诊断：方案 A 时间轴对照
 
-状态：规格草稿；页面设计与测试边界已确认，问题跟踪器及分诊流程待配置。目标标签为 `ready-for-agent`，本草稿尚未发布。
+状态：页面设计与测试边界已确认；实现由 [PR #1](https://github.com/ren2019/MU5250-OpenUI/pull/1) 跟踪，本地任务保留依赖关系，真机验收尚未完成。
 
 原型依据：用户已选定 **A「时间轴对照」**。实现前应先运行并查看该原型；布局、曲线联动及事件时间线以 A 为准，真实数据契约与异常处理以本规格为准。
 
 - [打开方案 A 交互原型](http://127.0.0.1:8089/?demo=1&prototype=diagnostics&variant=A)（需先启动本地服务）。
 - [原型说明与启动方法](DIAGNOSTIC-PROTOTYPE.md)。
 - [方案 A 截图](images/diagnostic-prototype/A-timeline.png)。
-- [原型源码及 VariantA 组件](../web-app/src/features/signal/prototype/DiagnosticPrototype.tsx)。
-- 固定证据：本地分支 `prototype/realtime-diagnostics`，原型提交 `b1e2266`，A 方案选择记录 `ec00635`。原型未推送；这些相对链接在该分支工作区中有效，后续发布 issue 时应补充可访问的远程原型链接，不能仅引用本机预览地址。
+- [原型源码及 VariantA 组件](https://github.com/ren2019/MU5250-OpenUI/blob/b1e2266/web-app/src/features/signal/prototype/DiagnosticPrototype.tsx)。
+- 固定证据：[原型提交 b1e2266](https://github.com/ren2019/MU5250-OpenUI/commit/b1e2266)、[A 方案选择记录 ec00635](https://github.com/ren2019/MU5250-OpenUI/commit/ec00635)。原型保存在远程 `prototype/realtime-diagnostics` 分支；实现分支已移除一次性原型代码。
 
 ## Problem Statement
 
@@ -90,7 +90,7 @@
 
 ## Further Notes
 
-- 用户于 2026-09-18 明确选择 A。原型主来源为本地分支 `prototype/realtime-diagnostics`；原型提交 `b1e2266`，选择记录提交 `ec00635`。当前未推送，发布 issue 时须说明这是本地证据，不提供不可访问的远程提交链接。
+- 用户于 2026-09-18 明确选择 A。可复现设计证据见本文顶部的固定远程提交；启动原型须使用原型分支的独立工作区。
 - 三版原型使用确定性模拟数据，并已检查切换、刷新、事件联动、缺口及移动布局；其实现不构成真实接口或设备验收。
 - 未发现独立领域词汇表或相关 ADR，沿用现有类型及产品术语：WAN、LTE/NR、PCC/SCC、RSRP、RSRQ、SINR、PCI、源新鲜度。
 - 仓库 origin 指向 ren2019/MU5250-OpenUI，但没有发现明确的 to-spec 跟踪器/分诊配置；GitHub 现有标签中缺少 ready-for-agent。按技能要求，先运行 /setup-matt-pocock-skills 完成配置，再将本规格发布到确定的跟踪器并应用该标签。
