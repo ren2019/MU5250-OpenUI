@@ -13,7 +13,8 @@ normal/recovery: down 8 Mbps, up 2 Mbps, CPU 25%, modem 65 C.
 zero: valid zero speed/CPU. missing: missing download and LTE RSRP only.
 stale: retained radio value with old source time, stale/error metadata.
 handover: NR PCC PCI/cell changes. carrier-missing: NR SCC disappears.
-thermal-unavailable: other sensors present, modem absent.
+thermal-unavailable: other sensors present, modem explicitly unsupported.
+thermal-failure: thermal HTTP 503; dashboard remains available.
 http-failure: dashboard HTTP 503, other APIs remain available.
 Control accepts reset_counts:true, reset_sources:true, and repeat_sources:true
 (to freeze successful source times for duplicate-sample checks).
@@ -29,7 +30,7 @@ from collections import Counter
 import mock_agent as mock
 
 SCENARIOS = {'normal', 'zero', 'missing', 'stale', 'handover', 'carrier-missing',
-             'thermal-unavailable', 'recovery', 'http-failure'}
+             'thermal-unavailable', 'thermal-failure', 'recovery', 'http-failure'}
 TTLS = {'signal': 1000, 'speed': 3000, 'cpu': 3000, 'thermal': 10000,
         'modem': 10000, 'wan': 30000, 'wan6': 30000, 'data_usage': 30000}
 LOCK = threading.RLock()
@@ -89,8 +90,10 @@ def thermal():
         data['source'] = observe('modem')
         if STATE['scenario'] == 'thermal-unavailable':
             data.pop('modem', None)
+            data['modem_supported'] = False
         else:
             data['modem'] = 65
+            data['modem_supported'] = True
         return data
 
 
@@ -106,6 +109,8 @@ class Handler(mock.Handler):
             if path == '/__diagnostics/status':
                 return self._send({'ok': True, 'data': {**STATE, 'counts': dict(COUNTS)}})
             COUNTS[path] += 1
+            if path == '/api/device/thermal/all' and STATE['scenario'] == 'thermal-failure':
+                return self._send({'ok': False, 'error': 'fixture thermal unavailable'}, 503)
             if path == '/api/dashboard' and STATE['scenario'] == 'http-failure':
                 return self._send({'ok': False, 'error': 'fixture dashboard unavailable'}, 503)
         super().do_GET()
