@@ -11,8 +11,8 @@ import { useDiagnosticEvents } from './useDiagnosticEvents'
 import { downloadDiagnosticCsv } from './exportCsv'
 
 export default function DiagnosticsPage() {
-  const { series, now, paused, session, home, thermalFailed } = useDiagnosticSession()
-  const events = useDiagnosticEvents(session, home, now)
+  const { series, now, paused, session, home, thermal, thermalFailed } = useDiagnosticSession()
+  const events = useDiagnosticEvents(session, home, thermal, now)
   const radio = useRadioHistory(session, home, now)
   const selectedCarrier = radio.carriers.find(carrier => carrier.id === radio.selected)
   const [minutes, setMinutes] = useState(15)

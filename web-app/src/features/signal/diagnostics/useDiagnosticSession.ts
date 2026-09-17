@@ -37,5 +37,5 @@ export function useDiagnosticSession() {
     const timer = window.setInterval(() => { if (!document.hidden) session.tick(Date.now()) }, 1000)
     return () => { clearInterval(timer); document.removeEventListener('visibilitychange', onVisibility) }
   }, [session])
-  return { ...snapshot, session, home, thermalFailed: Boolean(thermal.error || thermal.data?.source?.error) }
+  return { ...snapshot, session, home, thermal, thermalFailed: Boolean(thermal.error || thermal.data?.source?.error) }
 }

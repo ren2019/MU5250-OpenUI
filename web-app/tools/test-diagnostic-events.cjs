@@ -52,3 +52,54 @@ test('interruptions rebuild baseline; retention prunes events; unknown connectio
   h.prune(3600000 + 22001)
   assert.equal(h.getSnapshot().length, 0)
 })
+test('healthy WAN cache receipts preserve changes across a 30-second source refresh without bridging gaps', () => {
+  const h = new EventHistory()
+  const cached = data(1)
+  cached.sources.wan = { ...cached.sources.wan, ttl_ms: 30000 }
+  h.ingest(cached, 10000, false)
+  for (let i = 1; i < 10; i++) h.ingest(cached, 10000 + i * 3001, false)
+  const changed = data(2)
+  changed.sources.wan = { ...changed.sources.wan, ttl_ms: 30000 }
+  changed.wan.connected = false
+  h.ingest(changed, 40010, false)
+  assert.equal(h.getSnapshot().filter(e => e.title === '连接状态变化').length, 1)
+  h.ingest(changed, 100000, false)
+  const next = data(3); next.sources.wan = { ...next.sources.wan, ttl_ms: 30000 }
+  h.ingest(next, 103000, false)
+  assert.equal(h.getSnapshot().filter(e => e.title === '连接状态变化').length, 1)
+})
+function thermal(token, extra = {}) {
+  return { modem: 65, modem_supported: true, source: { sampled_at_ms: token, age_ms: 0, ttl_ms: 10000, stale: false, error: null }, ...extra }
+}
+test('thermal failure/recovery are deduplicated and exported through the shared event history', () => {
+  const h = new EventHistory()
+  h.ingestThermal(thermal(1), 10000, null)
+  h.ingestThermal(thermal(1), 20000, 'HTTP 503')
+  h.ingestThermal(thermal(1), 21000, 'HTTP 503')
+  assert.equal(h.getSnapshot().length, 1)
+  h.ingestThermal(thermal(1), 22000, null)
+  assert.equal(h.getSnapshot().length, 1)
+  h.ingestThermal(thermal(2), 30000, null)
+  assert.equal(h.getSnapshot().length, 2)
+  assert.equal(h.getSnapshot()[1].kind, 'recovery')
+  const { diagnosticCsv } = load('exportCsv')
+  const csv = diagnosticCsv({ series: {}, events: h.getSnapshot(), start: 0, end: 40000, simulated: true })
+  assert.match(csv, /基带温度采集不可用/)
+  assert.match(csv, /基带温度采集恢复/)
+})
+test('unsupported thermal baseline, failed initial reads and pause do not produce bogus transitions', () => {
+  const h = new EventHistory()
+  h.ingestThermal(thermal(1, { modem: undefined, modem_supported: false }), 10000, null)
+  h.ingestThermal(null, 20000, 'HTTP 503')
+  h.ingestThermal(thermal(2), 30000, null)
+  assert.equal(h.getSnapshot().length, 0)
+  h.interrupt()
+  h.ingestThermal(thermal(2), 40000, 'HTTP 503')
+  h.ingestThermal(thermal(3), 50000, null)
+  assert.equal(h.getSnapshot().length, 0)
+  h.ingestThermal(thermal(4, { source: { sampled_at_ms: 4, age_ms: 12000, ttl_ms: 10000, stale: true, error: 'refresh failed' } }), 60000, null)
+  assert.equal(h.getSnapshot().length, 1)
+  h.ingestThermal(thermal(5, { modem: undefined, modem_supported: false }), 70000, null)
+  h.ingestThermal(thermal(6), 80000, null)
+  assert.equal(h.getSnapshot().length, 1)
+})
