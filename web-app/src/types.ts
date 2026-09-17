@@ -20,6 +20,8 @@ export interface SignalInfo {
   carrier?: string
   signal_bars?: number
   cell_id?: string
+  lte_cell_id?: string
+  nr_cell_id?: string
   lte_carriers: CarrierComponent[]
   nr_carriers: CarrierComponent[]
   net_select?: string
