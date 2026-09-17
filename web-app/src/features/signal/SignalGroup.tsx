@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Tabs } from '../../ui/Tabs'
 import Overview from './Overview'
 import Locking from './Locking'
+import DiagnosticsPage from './diagnostics/DiagnosticsPage'
 
-type Tab = 'overview' | 'locking'
+type Tab = 'overview' | 'locking' | 'diagnostics'
 
 export default function SignalGroup() {
   const [tab, setTab] = useState<Tab>('overview')
@@ -19,6 +20,7 @@ export default function SignalGroup() {
         tabs={[
           { id: 'overview', label: '概览' },
           { id: 'locking', label: '模式与锁定' },
+          { id: 'diagnostics', label: '实时诊断' },
         ]}
         active={tab}
         onChange={setTab}
@@ -29,7 +31,9 @@ export default function SignalGroup() {
         RSRP：参考信号接收功率 · RSRQ：参考信号接收质量 · SINR：信干噪比 · RSSI：接收信号强度。
       </p>
 
-      {tab === 'overview' ? <Overview /> : <Locking />}
+      {tab === 'overview' && <Overview />}
+      {tab === 'locking' && <Locking />}
+      {tab === 'diagnostics' && <DiagnosticsPage />}
     </div>
   )
 }
