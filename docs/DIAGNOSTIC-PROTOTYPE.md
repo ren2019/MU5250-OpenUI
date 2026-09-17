@@ -2,11 +2,11 @@
 
 问题：实时排障应以共同时间轴、异常事件，还是当前状态为主入口？
 
-这是可丢弃的 UI 原型，保存在 `prototype/realtime-diagnostics` 分支。中文版基线已先保存为本地提交 `fabb0e4`；没有推送或部署设备。
+这是可丢弃的 UI 原型，保存在远程 `prototype/realtime-diagnostics` 分支：[原型 b1e2266](https://github.com/ren2019/MU5250-OpenUI/commit/b1e2266)、[选择 A 的记录 ec00635](https://github.com/ren2019/MU5250-OpenUI/commit/ec00635)。实现分支已删除原型源码、切换器及启动器，保留截图作为设计证据；未部署设备。
 
 ## 启动与比较
 
-在 `web-app` 目录运行 `npm run prototype:diagnostics`，打开 http://127.0.0.1:8089/?demo=1&prototype=diagnostics&variant=A 。如需登录，密码填 `demo`。
+在原型提交 `b1e2266` 的独立工作区中，进入 `web-app` 目录运行 `npm run prototype:diagnostics`，打开 http://127.0.0.1:8089/?demo=1&prototype=diagnostics&variant=A 。如需登录，密码填 `demo`。
 
 启动器使用本地模拟后端（127.0.0.1:9090），已有模拟服务则复用；前端仅监听本机。原型入口只在开发环境和 localhost/127.0.0.1 下启用。
 
@@ -33,7 +33,7 @@
 - 三方案切换、URL 状态、键盘切换、定时刷新、暂停、事件联动、采集缺口、载波和窗口选择。
 - 390 × 844 手机布局与桌面布局；手机 C 方案无横向溢出。
 - 单命令启动、TypeScript/Vite 构建、ESLint 通过；浏览器未捕获 error/warn。
-- 正式构建文件与原型前的中文版构建逐文件一致，原型代码未进入发布产物。
+- 原型阶段检查：当时正式构建与原型前中文版逐文件一致。该历史结果不适用于正式诊断实现；实现构建及验收见 [验收记录](REALTIME-DIAGNOSTICS-ACCEPTANCE.md)。
 - React Doctor：8 条提示，其中 7 条为既有维护性问题；新增提示是键盘监听 effect 随回调重新订阅。检查确认监听器有对称清理，无堆积；本轮不为一次性原型增加优化抽象。
 - 按 prototype 技能要求未新增自动测试；CSV 已实现，未作为正式数据导出验收。
 
