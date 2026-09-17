@@ -6,6 +6,9 @@ import Shell, { type Group } from './app/Shell'
 import { useTheme } from './app/theme'
 import { ConfirmHost, Toaster } from './ui/feedback'
 
+const diagnosticPrototype = import.meta.env.DEV && ['localhost', '127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).get('prototype') === 'diagnostics'
+const DiagnosticPrototype = import.meta.env.DEV ? lazy(() => import('./features/signal/prototype/DiagnosticPrototype')) : null
+
 const HomePage = lazy(() => import('./features/home/HomePage'))
 const SignalGroup = lazy(() => import('./features/signal/SignalGroup'))
 const NetworkGroup = lazy(() => import('./features/network/NetworkGroup'))
@@ -14,7 +17,7 @@ const SystemGroup = lazy(() => import('./features/system/SystemGroup'))
 
 export default function App() {
   const [authed, setAuthed] = useState(hasToken())
-  const [group, setGroup] = useState<Group>('home')
+  const [group, setGroup] = useState<Group>(diagnosticPrototype ? 'signal' : 'home')
   const { theme, toggle } = useTheme()
 
   useEffect(() => {
@@ -37,7 +40,7 @@ export default function App() {
       <HomeProvider fast={group === 'home' || group === 'signal'}>
         <Shell group={group} onNavigate={setGroup} theme={theme} onToggleTheme={toggle}>
           {group === 'home' && <HomePage />}
-          {group === 'signal' && <SignalGroup />}
+          {group === 'signal' && (diagnosticPrototype && DiagnosticPrototype ? <DiagnosticPrototype /> : <SignalGroup />)}
           {group === 'network' && <NetworkGroup />}
           {group === 'modem' && <ModemGroup />}
           {group === 'system' && (
