@@ -8,6 +8,7 @@ import { useRadioHistory } from './useRadioHistory'
 import { deviceMetrics } from './deviceMetrics'
 import './diagnostics.css'
 import { useDiagnosticEvents } from './useDiagnosticEvents'
+import { downloadDiagnosticCsv } from './exportCsv'
 
 export default function DiagnosticsPage() {
   const { series, now, paused, session, home, thermalFailed } = useDiagnosticSession()
@@ -26,6 +27,7 @@ export default function DiagnosticsPage() {
       <label>无线载波<Select value={radio.selected ?? ""} onChange={event => radio.select(event.target.value)}>{!selectedCarrier && <option value={radio.selected ?? ""}>{radio.selected ? "所选载波历史已过期" : "暂无载波"}</option>}{radio.carriers.map(carrier => <option key={carrier.id} value={carrier.id}>{carrierLabel(carrier)}{carrier.present ? "" : "（已消失 · 历史）"}</option>)}</Select></label>
       <Button variant="subtle" onClick={() => session.setPaused(!paused)}>{paused ? '恢复采集' : '暂停采集'}</Button>
       <Button variant="subtle" onClick={() => setCursor(null)}>回到最新</Button>
+      <Button variant="subtle" onClick={() => downloadDiagnosticCsv({ series, events, carrier: selectedCarrier, start, end: now, simulated: new URLSearchParams(window.location.search).get('demo') === '1' })}>导出当前窗口 CSV</Button>
     </div>
     {thermalFailed && <p role="status">基带温度采集失败；其他来源继续独立更新。</p>}
     <p className="diagnostic-reading">{cursor == null ? '最新时刻' : '回看时刻'}：{clock(cursor ?? now)} · 最后成功接收：{lastSuccess ? clock(lastSuccess) : '尚无'}</p>
