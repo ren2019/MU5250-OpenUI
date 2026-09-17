@@ -198,6 +198,9 @@ export interface ThermalInfo {
 
 export interface ThermalAll {
   available: boolean
+  /** Freshness of the modem sensor only, not the CPU thermal zones. */
+  source?: SourceFreshness
+  modem_supported?: boolean
   cpu_0?: number
   cpu_1?: number
   cpu_2?: number
