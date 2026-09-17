@@ -2,6 +2,14 @@
 
 状态：规格草稿；页面设计与测试边界已确认，问题跟踪器及分诊流程待配置。目标标签为 `ready-for-agent`，本草稿尚未发布。
 
+原型依据：用户已选定 **A「时间轴对照」**。实现前应先运行并查看该原型；布局、曲线联动及事件时间线以 A 为准，真实数据契约与异常处理以本规格为准。
+
+- [打开方案 A 交互原型](http://127.0.0.1:8089/?demo=1&prototype=diagnostics&variant=A)（需先启动本地服务）。
+- [原型说明与启动方法](DIAGNOSTIC-PROTOTYPE.md)。
+- [方案 A 截图](images/diagnostic-prototype/A-timeline.png)。
+- [原型源码及 VariantA 组件](../web-app/src/features/signal/prototype/DiagnosticPrototype.tsx)。
+- 固定证据：本地分支 `prototype/realtime-diagnostics`，原型提交 `b1e2266`，A 方案选择记录 `ec00635`。原型未推送；这些相对链接在该分支工作区中有效，后续发布 issue 时应补充可访问的远程原型链接，不能仅引用本机预览地址。
+
 ## Problem Statement
 
 用户在 U60 Pro 出现掉速、信号波动或连接异常时，需要知道异常前后发生了什么。分散的瞬时读数无法展示吞吐量、无线质量、小区及设备温度之间的时间关系；只展示最新状态也无法回看短暂异常。接口返回的缓存或缺失值若被当成实时读数或零值，还会造成错误判断。
